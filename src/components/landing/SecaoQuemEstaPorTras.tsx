@@ -102,60 +102,12 @@ export const SecaoQuemEstaPorTras: React.FC = () => {
           </h2>
         </div>
 
-        {/* Grid Principal: Lado a Lado no Desktop, Texto em cima + Carrossel embaixo no Mobile */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-          {/* Coluna de Texto (Copy Exata sem alterações) */}
-          <div className="lg:col-span-7 space-y-6 text-forest/90 font-sans text-base sm:text-lg leading-relaxed">
-            <p className="first-letter:font-serif first-letter:text-4xl first-letter:font-bold first-letter:text-terracotta first-letter:mr-1 first-letter:float-left">
-              Prazer, meu nome é Luiza. Sou formada em gastronomia, com passagem por cozinhas de
-              restaurantes Michelin no Brasil e na França. Hoje, dedico a maior parte do meu tempo à
-              minha outra paixão, a torrefação de cafés especiais, e cozinho para mim todo santo
-              dia.
-            </p>
-
-            <p>
-              Foi na pandemia que nasceu o Instituto do Sabor, um espaço para ensinar que comida boa
-              não depende de ocasião especial nem de jornada infinita na cozinha. A ideia era
-              ensinar às pessoas que, do dia para a noite não podiam comer fora, a ter independência
-              alimentar e comer bem todos os dias, sem ficar o dia inteiro na cozinha.
-            </p>
-
-            <p>
-              Apesar de ser chef de cozinha, a verdade é que eu também não tenho tempo para ficar 3,
-              4 horas na cozinha todos os dias. Por isso, decidi juntar o meu conhecimento sobre
-              armazenamento, gestão e segurança alimentar que aprendi nas cozinhas profissionais
-              para facilitar o meu dia a dia. E a verdade é que eu criei um método tão bom que eu
-              não poderia deixar de compartilhar com o máximo de pessoas possível!
-            </p>
-
-            <p className="p-4 rounded-2xl bg-cream-200/60 border-l-4 border-terracotta text-forest font-medium">
-              O método nasceu ao mesmo tempo de cima para baixo e de baixo para cima: Tanto das
-              técnicas que eu trouxe das cozinhas por onde passei quanto da minha própria realidade
-              atual: uma empresária ocupada, mas que não abre mão de comer comida boa, variada e
-              saudável todo santo dia. O resultado está no meu freezer, e pode estar no seu também.
-            </p>
-
-            {/* Badges de credibilidade em IBM Plex Mono */}
-            <div className="pt-2 flex flex-wrap gap-2.5 sm:gap-3 text-xs font-mono">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-forest/10 text-forest border border-forest/15 font-semibold">
-                <Award className="w-3.5 h-3.5 text-terracotta" />
-                Cozinhas Michelin (BR & FR)
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-caramel/10 text-caramel-dark border border-caramel/20 font-semibold">
-                <Coffee className="w-3.5 h-3.5 text-caramel" />
-                Torrefadora de Cafés Especiais
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-ice/40 text-forest border border-ice/60 font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-forest" />
-                Instituto do Sabor
-              </span>
-            </div>
-          </div>
-
-          {/* Coluna do Carrossel de Fotos da Luiza */}
-          <div className="lg:col-span-5 flex flex-col items-center">
+        {/* Ordem: Carrossel de fotos PRIMEIRO, depois a copy do texto (desktop e mobile) */}
+        <div className="flex flex-col items-center gap-12 lg:gap-16 max-w-3xl mx-auto">
+          {/* Carrossel de Fotos da Luiza (Acima do texto no Desktop e Mobile) */}
+          <div className="w-full flex flex-col items-center">
             <div
-              className="relative w-full max-w-[360px] sm:max-w-[400px] aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-4 border-cream-50 bg-forest-dark group touch-pan-y"
+              className="relative w-full max-w-[360px] sm:max-w-[420px] aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-4 border-cream-50 bg-forest-dark group touch-pan-y"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -178,8 +130,8 @@ export const SecaoQuemEstaPorTras: React.FC = () => {
                       className="w-full h-full object-cover object-center transform transition-transform duration-1000 scale-[1.01]"
                       loading="lazy"
                       decoding="async"
-                      width={400}
-                      height={500}
+                      width={420}
+                      height={525}
                     />
 
                     {/* Gradiente escuro na base para legibilidade da legenda */}
@@ -242,11 +194,54 @@ export const SecaoQuemEstaPorTras: React.FC = () => {
                 })}
               </div>
             </div>
+          </div>
 
-            {/* Dica de swipe em dispositivos móveis */}
-            <p className="mt-3 text-xs font-mono text-forest/60 text-center flex items-center justify-center gap-1.5">
-              <span>← Arraste para o lado ou use as setas →</span>
+          {/* Coluna de Texto (Copy Exata sem alterações, posicionada depois das fotos) */}
+          <div className="w-full space-y-6 text-forest/90 font-sans text-base sm:text-lg leading-relaxed">
+            <p className="first-letter:font-serif first-letter:text-4xl first-letter:font-bold first-letter:text-terracotta first-letter:mr-1 first-letter:float-left">
+              Prazer, meu nome é Luiza. Sou formada em gastronomia, com passagem por cozinhas de
+              restaurantes Michelin no Brasil e na França. Hoje, dedico a maior parte do meu tempo à
+              minha outra paixão, a torrefação de cafés especiais, e cozinho para mim todo santo
+              dia.
             </p>
+
+            <p>
+              Foi na pandemia que nasceu o Instituto do Sabor, um espaço para ensinar que comida boa
+              não depende de ocasião especial nem de jornada infinita na cozinha. A ideia era
+              ensinar às pessoas que, do dia para a noite não podiam comer fora, a ter independência
+              alimentar e comer bem todos os dias, sem ficar o dia inteiro na cozinha.
+            </p>
+
+            <p>
+              Apesar de ser chef de cozinha, a verdade é que eu também não tenho tempo para ficar 3,
+              4 horas na cozinha todos os dias. Por isso, decidi juntar o meu conhecimento sobre
+              armazenamento, gestão e segurança alimentar que aprendi nas cozinhas profissionais
+              para facilitar o meu dia a dia. E a verdade é que eu criei um método tão bom que eu
+              não poderia deixar de compartilhar com o máximo de pessoas possível!
+            </p>
+
+            <p className="p-4 rounded-2xl bg-cream-200/60 border-l-4 border-terracotta text-forest font-medium">
+              O método nasceu ao mesmo tempo de cima para baixo e de baixo para cima: Tanto das
+              técnicas que eu trouxe das cozinhas por onde passei quanto da minha própria realidade
+              atual: uma empresária ocupada, mas que não abre mão de comer comida boa, variada e
+              saudável todo santo dia. O resultado está no meu freezer, e pode estar no seu também.
+            </p>
+
+            {/* Badges de credibilidade em IBM Plex Mono */}
+            <div className="pt-2 flex flex-wrap gap-2.5 sm:gap-3 text-xs font-mono justify-center sm:justify-start">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-forest/10 text-forest border border-forest/15 font-semibold">
+                <Award className="w-3.5 h-3.5 text-terracotta" />
+                Cozinhas Michelin (BR & FR)
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-caramel/10 text-caramel-dark border border-caramel/20 font-semibold">
+                <Coffee className="w-3.5 h-3.5 text-caramel" />
+                Torrefadora de Cafés Especiais
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-ice/40 text-forest border border-ice/60 font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-forest" />
+                Instituto do Sabor
+              </span>
+            </div>
           </div>
         </div>
       </div>

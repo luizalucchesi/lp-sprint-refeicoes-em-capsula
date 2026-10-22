@@ -85,7 +85,7 @@ export const SecaoPreco: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm font-sans">
               <div className="flex items-center gap-2.5 p-3 rounded-xl bg-cream-200/60 border border-caramel/20">
                 <Pizza className="w-5 h-5 text-terracotta shrink-0" />
-                <span className="text-forest/85">Menos que dois deliveries.</span>
+                <span className="text-forest/85">Menos que um delivery.</span>
               </div>
               <div className="flex items-center gap-2.5 p-3 rounded-xl bg-cream-200/60 border border-caramel/20">
                 <ShoppingBag className="w-5 h-5 text-terracotta shrink-0" />

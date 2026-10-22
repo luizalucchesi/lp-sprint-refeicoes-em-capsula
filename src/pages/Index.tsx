@@ -33,9 +33,6 @@ const SecaoQuemEstaPorTras = React.lazy(() =>
 const SecaoOs4Bonus = React.lazy(() =>
   import('@/components/landing/SecaoOs4Bonus').then((m) => ({ default: m.SecaoOs4Bonus })),
 )
-const SecaoParaQuemE = React.lazy(() =>
-  import('@/components/landing/SecaoParaQuemE').then((m) => ({ default: m.SecaoParaQuemE })),
-)
 const SecaoPreco = React.lazy(() =>
   import('@/components/landing/SecaoPreco').then((m) => ({ default: m.SecaoPreco })),
 )
@@ -84,14 +81,11 @@ export default function Index() {
         {/* 5. O que você recebe: 24 bases, 229 fichas, 5 grupos de sustento */}
         <SecaoOQueVoceRecebe />
 
-        {/* 6. Quem está por trás do método: Chef Luiza, trajetória Michelin e carrossel de fotos */}
-        <SecaoQuemEstaPorTras />
-
-        {/* 7. Os 4 Bônus exclusivos da página com valores riscados */}
+        {/* 6. Os 4 Bônus exclusivos da página com valores riscados */}
         <SecaoOs4Bonus />
 
-        {/* 7. Para quem é: Feito para núcleos de 1 a 2 pessoas */}
-        <SecaoParaQuemE />
+        {/* 7. Quem está por trás do método: Chef Luiza, trajetória Michelin e carrossel de fotos */}
+        <SecaoQuemEstaPorTras />
 
         {/* 8. Tabela de Preço completa: De R$157 por R$47 */}
         <SecaoPreco />
