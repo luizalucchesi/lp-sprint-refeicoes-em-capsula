@@ -1,5 +1,8 @@
 import React from 'react'
 import { Snowflake, FileSpreadsheet, Activity, Sparkles, AlertTriangle } from 'lucide-react'
+import { TabletMockup } from './mockups/TabletMockup'
+import { EbookCoverPlaceholder } from './mockups/EbookCoverPlaceholder'
+import { EBOOK_COVERS } from './mockups/ebookCoversConfig'
 
 export const SecaoOs4Bonus: React.FC = () => {
   const bonusList = [
@@ -10,6 +13,8 @@ export const SecaoOs4Bonus: React.FC = () => {
       accentColor: 'border-t-ice bg-ice/10',
       tagColor: 'text-forest bg-ice/40 border-ice',
       icon: Snowflake,
+      coverData: EBOOK_COVERS.manualDoFreezer,
+      rotate: 'left' as const,
       copy: 'Como as 24 bases cabem no seu congelador: 4 jeitos de guardar, sendo sacos achatados com vincos, formas e doses, potes empilháveis e bandeja de pré-congelamento, mais o sistema de etiquetas e o arquivo vertical que organiza tudo por categoria.',
     },
     {
@@ -19,6 +24,8 @@ export const SecaoOs4Bonus: React.FC = () => {
       accentColor: 'border-t-caramel bg-caramel/10',
       tagColor: 'text-caramel-dark bg-caramel/20 border-caramel/30',
       icon: FileSpreadsheet,
+      coverData: EBOOK_COVERS.planilhaInteligente,
+      rotate: 'right' as const,
       copy: 'Você escolhe as bases do seu ciclo e a planilha lista os pratos possíveis com o que está no freezer. Nunca mais abrir a geladeira sem saber o que montar.',
     },
     {
@@ -28,6 +35,8 @@ export const SecaoOs4Bonus: React.FC = () => {
       accentColor: 'border-t-forest bg-forest/10',
       tagColor: 'text-forest bg-forest/15 border-forest/30',
       icon: Activity,
+      coverData: EBOOK_COVERS.tabelaDeMacros,
+      rotate: 'left' as const,
       copy: 'Os macros das receitas do guia, pra você saber o que está comendo e montar pratos equilibrados. Sem discurso de dieta.',
     },
     {
@@ -37,6 +46,8 @@ export const SecaoOs4Bonus: React.FC = () => {
       accentColor: 'border-t-terracotta bg-terracotta/10',
       tagColor: 'text-terracotta bg-terracotta/15 border-terracotta/30',
       icon: Sparkles,
+      coverData: EBOOK_COVERS.ocasiaoEspeciais,
+      rotate: 'right' as const,
       copy: 'Receitas simples de preparar, mas que fogem do dia a dia e impressionam em festas e jantares com família e amigos.',
     },
   ]
@@ -64,14 +75,14 @@ export const SecaoOs4Bonus: React.FC = () => {
           </div>
         </div>
 
-        {/* 4 Cards de Bônus (2x2) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* 4 Cards de Bônus (2x2) com Mockup de Tablet em cada card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {bonusList.map((bonus, idx) => {
             const Icon = bonus.icon
             return (
               <div
                 key={idx}
-                className="bg-cream-100 rounded-2xl border border-caramel/25 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col justify-between"
+                className="bg-cream-100 rounded-2xl border border-caramel/25 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col justify-between group"
               >
                 {/* Faixa colorida de topo */}
                 <div
@@ -89,24 +100,39 @@ export const SecaoOs4Bonus: React.FC = () => {
                   {/* Preço riscado + GRÁTIS */}
                   <div className="flex items-center gap-2 font-mono text-xs">
                     <span className="line-through text-gray-500 font-medium">{bonus.preco}</span>
-                    <span className="bg-terracotta text-cream px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                    <span className="bg-terracotta text-cream px-2.5 py-0.5 rounded font-bold uppercase tracking-wider shadow-xs">
                       GRÁTIS
                     </span>
                   </div>
                 </div>
 
-                {/* Corpo do card */}
-                <div className="p-6 sm:p-7 space-y-3 flex-1">
-                  <h3 className="font-serif text-2xl font-bold text-forest">{bonus.title}</h3>
-                  <p className="text-forest/80 text-sm sm:text-base leading-relaxed font-sans">
-                    {bonus.copy}
-                  </p>
+                {/* Corpo do card: Mockup do Tablet e Texto explicativo */}
+                <div className="p-6 sm:p-7 flex flex-col sm:flex-row gap-6 items-center flex-1">
+                  {/* Mockup de Tablet com a capa do material */}
+                  <div className="w-full sm:w-[46%] shrink-0 flex justify-center py-2">
+                    <TabletMockup rotate={bonus.rotate} size="sm">
+                      <EbookCoverPlaceholder cover={bonus.coverData} />
+                    </TabletMockup>
+                  </div>
+
+                  {/* Informações textuais do Bônus */}
+                  <div className="space-y-3 flex-1 text-center sm:text-left">
+                    <div className="inline-block sm:hidden">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-terracotta font-semibold">
+                        {bonus.num} • E-book Digital
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-2xl font-bold text-forest leading-snug">
+                      {bonus.title}
+                    </h3>
+                    <p className="text-forest/80 text-sm leading-relaxed font-sans">{bonus.copy}</p>
+                  </div>
                 </div>
 
                 {/* Rodapé do card */}
                 <div className="px-6 py-3 bg-cream-200/50 border-t border-caramel/15 text-[11px] font-mono text-caramel flex items-center justify-between">
-                  <span>Acesso imediato no pack</span>
-                  <span className="font-semibold text-terracotta">Incluso no plano</span>
+                  <span>Acesso digital imediato</span>
+                  <span className="font-semibold text-terracotta">Incluso na oferta</span>
                 </div>
               </div>
             )

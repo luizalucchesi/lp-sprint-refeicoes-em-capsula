@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles, Snowflake, ChefHat, CheckSquare } from 'lucide-react'
+import { Snowflake, ChefHat, CheckSquare } from 'lucide-react'
 
 // Imagem: saquinho com frango etiquetado com caneta permanente e leve toque de gelo
 const FREEZER_BAG_IMAGE =
@@ -15,11 +15,6 @@ export const SecaoAVirada: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Cabeçalho da virada */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cream/10 text-cream text-xs font-mono uppercase tracking-widest font-semibold border border-cream/20">
-            <Sparkles className="w-3.5 h-3.5 text-terracotta" />
-            A Virada de Chave
-          </span>
-
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-cream tracking-tight leading-tight">
             Decida o que comer uma vez. <br />
             <span className="text-[#F5A07A]">Coma bem por duas semanas.</span>

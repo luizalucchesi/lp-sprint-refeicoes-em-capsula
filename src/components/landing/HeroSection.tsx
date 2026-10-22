@@ -1,6 +1,6 @@
 import React from 'react'
 import { CtaButton } from './CtaButton'
-import { ChevronDown, Clock, Sparkles } from 'lucide-react'
+import { ChevronDown, Clock } from 'lucide-react'
 
 // Imagem conceitual de cozinha real (panela no fogo, luz natural de janela, bancada de madeira)
 const HERO_IMAGE_URL = 'https://img.usecurling.com/p/800/800?q=cooking%20chicken%20pot&color=orange'
@@ -13,14 +13,6 @@ export const HeroSection: React.FC = () => {
       <div className="absolute top-10 right-10 w-72 h-72 bg-caramel/5 rounded-full blur-2xl pointer-events-none" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 w-full">
-        {/* Eyebrow / Pré-título */}
-        <div className="flex flex-col items-center text-center mb-6">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-terracotta/10 text-terracotta text-xs md:text-sm font-mono uppercase tracking-widest font-semibold border border-terracotta/20 animate-fade-in">
-            <Sparkles className="w-3.5 h-3.5" />
-            Para quem cozinha para uma ou duas pessoas
-          </span>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Coluna Texto (Lado esquerdo no desktop) */}
           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">

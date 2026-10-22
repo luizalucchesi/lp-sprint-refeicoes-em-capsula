@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertCircle, ShoppingBag, UtensilsCrossed } from 'lucide-react'
+import { ShoppingBag, UtensilsCrossed } from 'lucide-react'
 
 // Imagem sutil de geladeira real / tomate na gaveta / comida de delivery
 const FRIDGE_IMAGE_URL =
@@ -12,11 +12,6 @@ export const SecaoChegandoDoTrabalho: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Lado Esquerdo: Headline em Fraunces */}
           <div className="lg:col-span-5 flex flex-col justify-center space-y-4">
-            <span className="font-mono text-xs uppercase tracking-widest text-caramel font-semibold flex items-center gap-1.5">
-              <AlertCircle className="w-4 h-4 text-terracotta" />
-              A rotina que esgota
-            </span>
-
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-forest leading-snug">
               Cheguei do trabalho, a geladeira está cheia e eu não sei o que jantar
             </h2>
