@@ -25,6 +25,11 @@ const SecaoOQueVoceRecebe = React.lazy(() =>
     default: m.SecaoOQueVoceRecebe,
   })),
 )
+const SecaoQuemEstaPorTras = React.lazy(() =>
+  import('@/components/landing/SecaoQuemEstaPorTras').then((m) => ({
+    default: m.SecaoQuemEstaPorTras,
+  })),
+)
 const SecaoOs4Bonus = React.lazy(() =>
   import('@/components/landing/SecaoOs4Bonus').then((m) => ({ default: m.SecaoOs4Bonus })),
 )
@@ -79,7 +84,10 @@ export default function Index() {
         {/* 5. O que você recebe: 24 bases, 229 fichas, 5 grupos de sustento */}
         <SecaoOQueVoceRecebe />
 
-        {/* 6. Os 4 Bônus exclusivos da página com valores riscados */}
+        {/* 6. Quem está por trás do método: Chef Luiza, trajetória Michelin e carrossel de fotos */}
+        <SecaoQuemEstaPorTras />
+
+        {/* 7. Os 4 Bônus exclusivos da página com valores riscados */}
         <SecaoOs4Bonus />
 
         {/* 7. Para quem é: Feito para núcleos de 1 a 2 pessoas */}

@@ -1,9 +1,6 @@
 import React from 'react'
 import { Snowflake, ChefHat, CheckSquare } from 'lucide-react'
-
-// Imagem: saquinho com frango etiquetado com caneta permanente e leve toque de gelo
-const FREEZER_BAG_IMAGE =
-  'https://img.usecurling.com/p/800/600?q=freezer%20meal%20prep%20labels&color=cyan'
+import { FreezerShelfIllustration } from './FreezerShelfIllustration'
 
 export const SecaoAVirada: React.FC = () => {
   return (
@@ -139,24 +136,8 @@ export const SecaoAVirada: React.FC = () => {
             </p>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="relative rounded-2xl overflow-hidden border-2 border-ice/20 shadow-2xl">
-              <img
-                src={FREEZER_BAG_IMAGE}
-                alt="Porções de bases congeladas com etiquetas no freezer"
-                className="w-full h-64 object-cover"
-                loading="lazy"
-                decoding="async"
-                width={800}
-                height={600}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/80 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 left-3 right-3 text-center">
-                <span className="inline-block bg-cream/95 text-forest font-mono text-xs px-3 py-1 rounded shadow font-semibold">
-                  Sacos achatados com vinco • Ocupa 70% menos espaço
-                </span>
-              </div>
-            </div>
+          <div className="lg:col-span-5 flex justify-center">
+            <FreezerShelfIllustration />
           </div>
         </div>
       </div>
