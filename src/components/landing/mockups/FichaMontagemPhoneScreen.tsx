@@ -26,6 +26,7 @@ export const FichaMontagemPhoneScreen: React.FC<FichaMontagemPhoneScreenProps> =
           alt="Ficha de montagem na tela do celular"
           className="w-full h-full object-cover"
           loading="lazy"
+          decoding="async"
         />
       </div>
     )

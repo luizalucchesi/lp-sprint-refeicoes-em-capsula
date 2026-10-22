@@ -3,7 +3,7 @@ import { CtaButton } from './CtaButton'
 import { ChevronDown, Clock } from 'lucide-react'
 
 // Imagem conceitual de cozinha real (panela no fogo, luz natural de janela, bancada de madeira)
-const HERO_IMAGE_URL = 'https://img.usecurling.com/p/800/800?q=cooking%20chicken%20pot&color=orange'
+const HERO_IMAGE_URL = 'https://img.usecurling.com/p/600/600?q=cooking%20chicken%20pot&color=orange'
 
 export const HeroSection: React.FC = () => {
   return (
@@ -57,6 +57,10 @@ export const HeroSection: React.FC = () => {
                   alt="Preparo de base na panela em cozinha com luz natural"
                   className="w-full h-80 sm:h-96 object-cover"
                   loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  width={600}
+                  height={600}
                 />
 
                 {/* Efeito vinheta quente e sutil */}

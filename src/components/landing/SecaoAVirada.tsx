@@ -146,6 +146,9 @@ export const SecaoAVirada: React.FC = () => {
                 alt="Porções de bases congeladas com etiquetas no freezer"
                 className="w-full h-64 object-cover"
                 loading="lazy"
+                decoding="async"
+                width={800}
+                height={600}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/80 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-3 left-3 right-3 text-center">

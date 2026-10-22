@@ -13,7 +13,7 @@ export const META_PIXEL_ID =
 
 export const KIWIFY_CHECKOUT_URL =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_KIWIFY_CHECKOUT_URL) ||
-  'https://pay.kiwify.com.br/refeicoes-em-capsula' // Substitua pelo link real do seu produto Kiwify
+  'https://pay.kiwify.com.br/kPUhdIm'
 
 export const SPRINT_NEGOCIO_SLUG = 'instituto-do-sabor'
 export const SPRINT_PRODUCT_ID = 'refeicoes-em-capsula-47'

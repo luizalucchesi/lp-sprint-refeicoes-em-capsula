@@ -6,7 +6,7 @@
 export const META_PIXEL_ID = '123456789012345' // Configure aqui o seu Meta Pixel ID
 export const META_CONVERSIONS_ENDPOINT =
   'https://aomkmulukjuwsbrlbfgl.supabase.co/functions/v1/conversoes'
-export const KIWIFY_CHECKOUT_URL = 'https://pay.kiwify.com.br/placeholder-refeicoes-em-capsula' // Substituir pelo link do checkout Kiwify oficial
+export const KIWIFY_CHECKOUT_URL = 'https://pay.kiwify.com.br/kPUhdIm'
 
 const SESSION_STORAGE_KEY = 'metodoplana_session_id'
 

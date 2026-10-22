@@ -61,6 +61,8 @@ export const CtaButton: React.FC<CtaButtonProps> = ({
       <a
         href={targetUrl}
         onClick={handleClick}
+        target="_blank"
+        rel="noopener noreferrer"
         data-checkout="true"
         className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       >

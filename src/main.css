@@ -1,8 +1,5 @@
 /* Global styles - Theme, font, utilities, animations and global components */
 
-/* Fontes do Design System: Fraunces (serif), Inter (sans), IBM Plex Mono (mono) */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -286,5 +283,16 @@
 
   .animate-spotlight {
     animation: spotlight 2s ease forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

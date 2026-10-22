@@ -10,10 +10,17 @@ export const StickyPurchaseBar: React.FC = () => {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
+    let ticking = false
     const handleScroll = () => {
-      // Aparece após a primeira dobra (aproximadamente 80-90% da altura da viewport)
-      const threshold = window.innerHeight * 0.85
-      setVisible(window.scrollY > threshold)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          // Aparece após a primeira dobra (aproximadamente 80-90% da altura da viewport)
+          const threshold = window.innerHeight * 0.85
+          setVisible(window.scrollY > threshold)
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -53,6 +60,8 @@ export const StickyPurchaseBar: React.FC = () => {
           <a
             href={targetUrl}
             onClick={handleClick}
+            target="_blank"
+            rel="noopener noreferrer"
             data-checkout="true"
             className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-hover text-cream px-5 py-2 rounded-full font-bold text-sm tracking-tight transition-transform hover:scale-105 active:scale-95 shadow-md shadow-terracotta/30"
           >
@@ -82,6 +91,8 @@ export const StickyPurchaseBar: React.FC = () => {
           <a
             href={targetUrl}
             onClick={handleClick}
+            target="_blank"
+            rel="noopener noreferrer"
             data-checkout="true"
             className="inline-flex items-center justify-center gap-1.5 bg-terracotta hover:bg-terracotta-hover text-cream px-4 py-2.5 rounded-full font-bold text-xs tracking-tight shrink-0 shadow-md"
           >

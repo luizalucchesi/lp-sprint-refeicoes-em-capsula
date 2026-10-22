@@ -23,6 +23,9 @@ export const SecaoChegandoDoTrabalho: React.FC = () => {
                 alt="Geladeira aberta com legumes na gaveta"
                 className="w-full h-48 sm:h-56 object-cover"
                 loading="lazy"
+                decoding="async"
+                width={600}
+                height={600}
               />
               <div className="p-2.5 bg-cream text-[11px] font-mono text-caramel text-center border-t border-caramel/10">
                 A gaveta cheia de legumes que vão estragar devagar...

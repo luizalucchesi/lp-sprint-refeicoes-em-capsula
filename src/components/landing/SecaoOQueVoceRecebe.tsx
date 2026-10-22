@@ -5,7 +5,7 @@ import { FichaMontagemPhoneScreen } from './mockups/FichaMontagemPhoneScreen'
 
 // Flat-lay de sacos de freezer etiquetados sobre bancada rústica
 const FLATLAY_IMAGE_URL =
-  'https://img.usecurling.com/p/800/600?q=freezer%20bags%20labeled%20kitchen%20counter&color=orange'
+  'https://img.usecurling.com/p/600/450?q=freezer%20bags%20labeled%20kitchen%20counter&color=orange'
 
 export const SecaoOQueVoceRecebe: React.FC = () => {
   return (
@@ -181,6 +181,9 @@ export const SecaoOQueVoceRecebe: React.FC = () => {
                   alt="Flat-lay com sacos de freezer e fichas de receitas do guia"
                   className="w-full h-48 object-cover"
                   loading="lazy"
+                  decoding="async"
+                  width={600}
+                  height={450}
                 />
               </div>
             </div>

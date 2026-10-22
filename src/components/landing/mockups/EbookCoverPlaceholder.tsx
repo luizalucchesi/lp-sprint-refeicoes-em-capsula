@@ -20,6 +20,7 @@ export const EbookCoverPlaceholder: React.FC<EbookCoverPlaceholderProps> = ({
           alt={cover.title}
           className="w-full h-full object-cover"
           loading="lazy"
+          decoding="async"
         />
       </div>
     )
