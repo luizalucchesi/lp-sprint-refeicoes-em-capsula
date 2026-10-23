@@ -4,7 +4,11 @@ import { TabletMockup } from './mockups/TabletMockup'
 import { EbookCoverPlaceholder } from './mockups/EbookCoverPlaceholder'
 import { ManualDoFreezerCover } from './mockups/ManualDoFreezerCover'
 import { EBOOK_COVERS } from './mockups/ebookCoversConfig'
-import { capaOcasioesEspeciais } from '@/assets/mockupImages'
+import {
+  capaOcasioesEspeciais,
+  planilhaMestraBonus2,
+  tabelaMacrosBonus3,
+} from '@/assets/mockupImages'
 
 export const SecaoOs4Bonus: React.FC = () => {
   const bonusList = [
@@ -30,6 +34,24 @@ export const SecaoOs4Bonus: React.FC = () => {
       tagColor: 'text-caramel-dark bg-caramel/20 border-caramel/30',
       icon: FileSpreadsheet,
       coverData: EBOOK_COVERS.planilhaInteligente,
+      customCover: (
+        <div className="relative h-full w-full bg-[#1E3A2B] overflow-hidden flex flex-col justify-between">
+          <img
+            src={planilhaMestraBonus2}
+            alt="Planilha Inteligente - Freezer Cápsula: Planilha Mestra"
+            loading="lazy"
+            decoding="async"
+            width={700}
+            height={522}
+            className="w-full h-full object-cover object-top select-none"
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-3 pb-1 px-2 text-center pointer-events-none">
+            <span className="inline-block text-[9px] font-semibold text-white/95 tracking-wide drop-shadow-xs">
+              Planilha Mestra • Google Sheets + Excel
+            </span>
+          </div>
+        </div>
+      ),
       rotate: 'right' as const,
       copy: 'Você escolhe as bases do seu ciclo e a planilha lista os pratos possíveis com o que está no freezer. Nunca mais abrir a geladeira sem saber o que montar.',
     },
@@ -42,6 +64,24 @@ export const SecaoOs4Bonus: React.FC = () => {
       tagColor: 'text-forest bg-forest/15 border-forest/30',
       icon: Activity,
       coverData: EBOOK_COVERS.tabelaDeMacros,
+      customCover: (
+        <div className="relative h-full w-full bg-[#1F2E28] overflow-hidden flex flex-col justify-between">
+          <img
+            src={tabelaMacrosBonus3}
+            alt="Tabela de Equivalência de Macros e Calorias com fórmulas vivas"
+            loading="lazy"
+            decoding="async"
+            width={800}
+            height={452}
+            className="w-full h-full object-cover object-top select-none"
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-3 pb-1 px-2 text-center pointer-events-none">
+            <span className="inline-block text-[9px] font-semibold text-white/95 tracking-wide drop-shadow-xs">
+              Tabela de Macros • Fórmulas vivas
+            </span>
+          </div>
+        </div>
+      ),
       rotate: 'left' as const,
       copy: 'As calorias e macros das receitas do guia, de acordo com as porções que você usa de verdade. Assim, você tem total controle sobre a sua dieta sem deixar de comer variado.',
     },
