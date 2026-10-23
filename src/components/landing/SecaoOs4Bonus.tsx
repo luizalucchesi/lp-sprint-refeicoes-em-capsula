@@ -2,11 +2,14 @@ import React from 'react'
 import { Snowflake, FileSpreadsheet, Activity, Sparkles, AlertTriangle } from 'lucide-react'
 import { TabletMockup } from './mockups/TabletMockup'
 import { EbookCoverPlaceholder } from './mockups/EbookCoverPlaceholder'
+import { ManualDoFreezerCover } from './mockups/ManualDoFreezerCover'
 import { EBOOK_COVERS } from './mockups/ebookCoversConfig'
+import { capaOcasioesEspeciais } from '@/assets/mockupImages'
 
 export const SecaoOs4Bonus: React.FC = () => {
   const bonusList = [
     {
+      id: 'manual-do-freezer',
       num: 'Bônus 1',
       title: 'Manual do Freezer',
       preco: 'R$32',
@@ -14,10 +17,12 @@ export const SecaoOs4Bonus: React.FC = () => {
       tagColor: 'text-forest bg-ice/40 border-ice',
       icon: Snowflake,
       coverData: EBOOK_COVERS.manualDoFreezer,
+      customCover: <ManualDoFreezerCover />,
       rotate: 'left' as const,
       copy: 'Como as 24 bases cabem no seu congelador: 4 jeitos de guardar, sendo sacos achatados com vincos, formas e doses, potes empilháveis e bandeja de pré-congelamento, mais o sistema de etiquetas e o arquivo vertical que organiza tudo por categoria.',
     },
     {
+      id: 'planilha-inteligente',
       num: 'Bônus 2',
       title: 'Planilha inteligente',
       preco: 'R$35',
@@ -29,6 +34,7 @@ export const SecaoOs4Bonus: React.FC = () => {
       copy: 'Você escolhe as bases do seu ciclo e a planilha lista os pratos possíveis com o que está no freezer. Nunca mais abrir a geladeira sem saber o que montar.',
     },
     {
+      id: 'tabela-de-macros',
       num: 'Bônus 3',
       title: 'Tabela de Macros',
       preco: 'R$24',
@@ -40,13 +46,17 @@ export const SecaoOs4Bonus: React.FC = () => {
       copy: 'As calorias e macros das receitas do guia, de acordo com as porções que você usa de verdade. Assim, você tem total controle sobre a sua dieta sem deixar de comer variado.',
     },
     {
+      id: 'ocasioes-especiais',
       num: 'Bônus 4',
       title: 'Receitas para ocasiões especiais',
       preco: 'R$19',
       accentColor: 'border-t-terracotta bg-terracotta/10',
       tagColor: 'text-terracotta bg-terracotta/15 border-terracotta/30',
       icon: Sparkles,
-      coverData: EBOOK_COVERS.ocasiaoEspeciais,
+      coverData: {
+        ...EBOOK_COVERS.ocasiaoEspeciais,
+        imageUrl: capaOcasioesEspeciais,
+      },
       rotate: 'right' as const,
       copy: 'Receitas simples de preparar, mas que fogem do dia a dia e impressionam em festas e jantares com família e amigos.',
     },
@@ -111,7 +121,11 @@ export const SecaoOs4Bonus: React.FC = () => {
                   {/* Mockup de Tablet com a capa do material */}
                   <div className="w-full sm:w-[46%] shrink-0 flex justify-center py-2">
                     <TabletMockup rotate={bonus.rotate} size="sm">
-                      <EbookCoverPlaceholder cover={bonus.coverData} />
+                      {bonus.customCover ? (
+                        bonus.customCover
+                      ) : (
+                        <EbookCoverPlaceholder cover={bonus.coverData} />
+                      )}
                     </TabletMockup>
                   </div>
 

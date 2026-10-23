@@ -53,12 +53,12 @@ export const EBOOK_COVERS: Record<string, EbookCoverData> = {
   },
   ocasiaoEspeciais: {
     id: 'bonus-ocasioes-especiais',
-    title: 'Ocasiões Especiais',
-    subtitle: 'Receitas que fogem do dia a dia e impressionam família e convidados',
+    title: 'Receitas para Ocasiões Especiais',
+    subtitle: '4 momentos · 16 receitas que impressionam família e convidados',
     badge: 'BÔNUS 04',
     accentColor: '#B84A24', // Terracota
     bgGradient: 'from-[#4a1c0d] via-[#7D2E14] to-[#B84A24]',
-    imageUrl: '', // << Substituir pela imagem real da capa quando enviar
+    imageUrl: '',
     iconName: 'special',
   },
 }

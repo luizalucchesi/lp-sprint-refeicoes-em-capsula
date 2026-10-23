@@ -17,10 +17,12 @@ export const EbookCoverPlaceholder: React.FC<EbookCoverPlaceholderProps> = ({
       <div className={`w-full h-full relative overflow-hidden bg-forest-dark ${className}`}>
         <img
           src={cover.imageUrl}
-          alt={cover.title}
+          alt={`Capa do E-book: ${cover.title}`}
           className="w-full h-full object-cover"
           loading="lazy"
           decoding="async"
+          width={600}
+          height={800}
         />
       </div>
     )

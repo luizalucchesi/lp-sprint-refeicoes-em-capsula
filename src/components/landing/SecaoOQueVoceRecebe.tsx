@@ -2,6 +2,7 @@ import React from 'react'
 import { BookOpen, Layers, Utensils, Gift, Check, Sparkles, Smartphone } from 'lucide-react'
 import { PhoneMockup } from './mockups/PhoneMockup'
 import { FichaMontagemPhoneScreen } from './mockups/FichaMontagemPhoneScreen'
+import { fichasMontagem } from '@/assets/mockupImages'
 
 // Flat-lay de sacos de freezer etiquetados sobre bancada rústica
 const FLATLAY_IMAGE_URL =
@@ -93,10 +94,10 @@ export const SecaoOQueVoceRecebe: React.FC = () => {
                 média.
               </p>
 
-              {/* MOCKUP DE CELULAR com a ficha de montagem em HTML/CSS e Azul Gelo #C9D8DD */}
+              {/* MOCKUP DE CELULAR com a ficha de montagem real (3 fichas com fotos e modo de preparo) */}
               <div className="pt-2 pb-1 flex justify-center">
                 <PhoneMockup rotate="none" size="sm">
-                  <FichaMontagemPhoneScreen />
+                  <FichaMontagemPhoneScreen imageUrl={fichasMontagem} />
                 </PhoneMockup>
               </div>
             </div>

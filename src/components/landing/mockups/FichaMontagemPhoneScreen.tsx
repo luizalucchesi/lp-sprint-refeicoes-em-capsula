@@ -23,10 +23,12 @@ export const FichaMontagemPhoneScreen: React.FC<FichaMontagemPhoneScreenProps> =
       <div className={`w-full h-full relative overflow-hidden bg-cream ${className}`}>
         <img
           src={imageUrl}
-          alt="Ficha de montagem na tela do celular"
-          className="w-full h-full object-cover"
+          alt="Fichas de Montagem: Burrito de Feijão, Curry e Grão-de-Bico; Burrito Verde de Frango e Espinafre; Quesadilla de Frango e Cogumelos"
+          className="w-full h-full object-cover object-top"
           loading="lazy"
           decoding="async"
+          width={400}
+          height={800}
         />
       </div>
     )
