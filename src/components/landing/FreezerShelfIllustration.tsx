@@ -1304,13 +1304,7 @@ export const FreezerShelfIllustration: React.FC = () => {
       </div>
 
       {/* Legenda inferior de alto contraste em Azul Gelo */}
-      <div className="bg-[#10221A] px-4 py-3 border-t border-ice/20 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono">
-        <div className="flex items-center gap-2 text-ice">
-          <span className="w-2 h-2 rounded-full bg-ice animate-ping" />
-          <span className="text-cream/90 text-[11px]">
-            Etiquetas em <strong className="text-ice">IBM Plex Mono</strong> com data, peso e porção
-          </span>
-        </div>
+      <div className="bg-[#10221A] px-4 py-3 border-t border-ice/20 flex items-center justify-center text-xs font-mono">
         <div className="text-ice/80 text-[11px] font-semibold">
           Sacos achatados • 70% menos espaço
         </div>

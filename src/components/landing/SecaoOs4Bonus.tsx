@@ -37,7 +37,7 @@ export const SecaoOs4Bonus: React.FC = () => {
       icon: Activity,
       coverData: EBOOK_COVERS.tabelaDeMacros,
       rotate: 'left' as const,
-      copy: 'Os macros das receitas do guia, pra você saber o que está comendo e montar pratos equilibrados. Sem discurso de dieta.',
+      copy: 'As calorias e macros das receitas do guia, de acordo com as porções que você usa de verdade. Assim, você tem total controle sobre a sua dieta sem deixar de comer variado.',
     },
     {
       num: 'Bônus 4',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { ChevronLeft, ChevronRight, Award, Coffee, Sparkles } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import fotoAula from '@/assets/luiza-1-7d847.jpg'
 import fotoDrink from '@/assets/luiza-2-521f3.jpg'
 import fotoCozinha from '@/assets/luiza-3-a6c15.jpg'
@@ -208,16 +208,16 @@ export const SecaoQuemEstaPorTras: React.FC = () => {
             <p>
               Foi na pandemia que nasceu o Instituto do Sabor, um espaço para ensinar que comida boa
               não depende de ocasião especial nem de jornada infinita na cozinha. A ideia era
-              ensinar às pessoas que, do dia para a noite não podiam comer fora, a ter independência
-              alimentar e comer bem todos os dias, sem ficar o dia inteiro na cozinha.
+              ensinar às pessoas a ter independência alimentar e comer bem todos os dias, sem ficar
+              o dia inteiro na cozinha.
             </p>
 
             <p>
               Apesar de ser chef de cozinha, a verdade é que eu também não tenho tempo para ficar 3,
               4 horas na cozinha todos os dias. Por isso, decidi juntar o meu conhecimento sobre
               armazenamento, gestão e segurança alimentar que aprendi nas cozinhas profissionais
-              para facilitar o meu dia a dia. E a verdade é que eu criei um método tão bom que eu
-              não poderia deixar de compartilhar com o máximo de pessoas possível!
+              para facilitar o meu dia a dia. E aí eu criei um método, mas ele é tão bom que eu não
+              poderia deixar de compartilhar com o máximo de pessoas possível!
             </p>
 
             <p className="p-4 rounded-2xl bg-cream-200/60 border-l-4 border-terracotta text-forest font-medium">
@@ -226,22 +226,6 @@ export const SecaoQuemEstaPorTras: React.FC = () => {
               atual: uma empresária ocupada, mas que não abre mão de comer comida boa, variada e
               saudável todo santo dia. O resultado está no meu freezer, e pode estar no seu também.
             </p>
-
-            {/* Badges de credibilidade em IBM Plex Mono */}
-            <div className="pt-2 flex flex-wrap gap-2.5 sm:gap-3 text-xs font-mono justify-center sm:justify-start">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-forest/10 text-forest border border-forest/15 font-semibold">
-                <Award className="w-3.5 h-3.5 text-terracotta" />
-                Cozinhas Michelin (BR & FR)
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-caramel/10 text-caramel-dark border border-caramel/20 font-semibold">
-                <Coffee className="w-3.5 h-3.5 text-caramel" />
-                Torrefadora de Cafés Especiais
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-ice/40 text-forest border border-ice/60 font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-forest" />
-                Instituto do Sabor
-              </span>
-            </div>
           </div>
         </div>
       </div>

@@ -37,14 +37,6 @@ export const Footer: React.FC = () => {
           </span>
         </div>
 
-        {/* Disclaimer legal */}
-        <p className="text-[11px] leading-relaxed text-cream/50 max-w-2xl">
-          Este site não é afiliado ao Facebook ou a qualquer entidade do Meta Inc. Uma vez que você
-          deixar o Facebook, a responsabilidade não é deles e sim do nosso site. Fazemos todos os
-          esforços para indicar claramente e mostrar todas as provas do produto e usar resultados
-          reais.
-        </p>
-
         {/* Copyright & Links */}
         <div className="pt-4 border-t border-cream/10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-cream/60 gap-3">
           <p>© {new Date().getFullYear()} Instituto do Sabor. Todos os direitos reservados.</p>
