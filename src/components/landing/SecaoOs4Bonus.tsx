@@ -26,15 +26,23 @@ export const SecaoOs4Bonus: React.FC = () => {
         imageUrl: bannerManualDoFreezer,
       },
       customCover: (
-        <div className="relative h-full w-full bg-[#FAF6EE] overflow-hidden flex flex-col justify-center items-center">
+        <div
+          className="relative h-full w-full bg-[#FAF6EE] overflow-hidden flex items-center justify-center select-none"
+          aria-label="Capa do Manual do Freezer - Foto de organização e armazenamento"
+        >
           <img
             src={bannerManualDoFreezer}
-            alt="Manual do Freezer: Como as 24 bases cabem no seu congelador"
+            alt="Manual do Freezer: Organização de saquinhos e porções no congelador"
             loading="lazy"
             decoding="async"
             width={600}
             height={450}
-            className="w-full h-full object-cover select-none"
+            className="w-full h-full object-cover pointer-events-none select-none transition-transform duration-500 group-hover:scale-[1.03]"
+            style={{
+              objectPosition: '85% center',
+              transform: 'scale(1.35)',
+              transformOrigin: '85% center',
+            }}
           />
         </div>
       ),

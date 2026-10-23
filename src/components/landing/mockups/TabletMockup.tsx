@@ -66,7 +66,7 @@ export const TabletMockup: React.FC<TabletMockupProps> = ({
         {/* Moldura interna (bezel preto da tela) */}
         <div className="relative rounded-[16px] overflow-hidden bg-black aspect-[3/4] w-full shadow-inner border border-black/40">
           {/* Conteúdo da tela (imagem da capa ou placeholder) */}
-          <div className="w-full h-full relative z-0 flex flex-col">{children}</div>
+          <div className="w-full h-full relative z-0 flex flex-col overflow-hidden">{children}</div>
 
           {/* Reflexo de luz / brilho diagonal sobre a tela */}
           <div
