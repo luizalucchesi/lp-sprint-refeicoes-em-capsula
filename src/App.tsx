@@ -8,6 +8,8 @@ import Index from './pages/Index'
 import Layout from './components/Layout'
 
 const Obrigado = React.lazy(() => import('./pages/Obrigado'))
+const PoliticaPrivacidade = React.lazy(() => import('./pages/PoliticaPrivacidade'))
+const ExclusaoDeDados = React.lazy(() => import('./pages/ExclusaoDeDados'))
 const NotFound = React.lazy(() => import('./pages/NotFound'))
 
 const RouteFallback = () => (
@@ -26,6 +28,8 @@ const App = () => (
           <Route element={<Layout />}>
             <Route path="/" element={<Index />} />
             <Route path="/obrigado" element={<Obrigado />} />
+            <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+            <Route path="/exclusao-de-dados" element={<ExclusaoDeDados />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

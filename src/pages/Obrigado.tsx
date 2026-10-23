@@ -1,22 +1,16 @@
-import { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { dispararPurchaseSPRINT, inicializarMetaPixel } from '@/lib/tracking/sprintTracker'
-import {
-  CheckCircle,
-  Mail,
-  BookOpen,
-  Snowflake,
-  ShieldCheck,
-  ArrowRight,
-  ExternalLink,
-  Sparkles,
-  Heart,
-  HelpCircle,
-} from 'lucide-react'
+import { CheckCircle2, Mail, ExternalLink, ShieldCheck, Instagram } from 'lucide-react'
 
-export default function Obrigado() {
-  // Config global definida antes do disparo principal de Purchase (100% server-side, SEM fbq client-side)
+const Obrigado: React.FC = () => {
+  const trackingRanRef = useRef(false)
+
+  // Disparo de Purchase 100% server-side via SPRINT Conversions API (SEM fbq Purchase client-side)
   useEffect(() => {
+    if (trackingRanRef.current) return
+    trackingRanRef.current = true
+
     window.SPRINT_VALOR = 47.0
     window.SPRINT_PRODUCT_ID = 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146'
 
@@ -25,147 +19,98 @@ export default function Obrigado() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#F7F1E7] text-[#2E4A3B] py-12 md:py-20 px-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Cabeçalho de Boas-vindas */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#2E4A3B] text-white shadow-lg mb-6 ring-8 ring-[#2E4A3B]/10">
-            <CheckCircle className="w-8 h-8 text-[#C9D8DD]" />
+    <div className="w-full bg-[#F7F1E7] min-h-screen text-[#2E4A3B]">
+      <div className="mx-auto max-w-[640px] px-5 py-16 text-center space-y-8">
+        {/* Ícone de confirmação */}
+        <div className="flex justify-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#2E4A3B]/10 ring-8 ring-[#2E4A3B]/5">
+            <CheckCircle2 className="h-10 w-10 text-[#2E4A3B]" />
           </div>
+        </div>
 
-          <div className="inline-block mb-3">
-            <span className="font-mono text-xs uppercase tracking-widest font-semibold text-[#B84A24] bg-[#B84A24]/10 border border-[#B84A24]/20 px-3.5 py-1.5 rounded-full">
-              Pedido Confirmado • Acesso Imediato
-            </span>
-          </div>
-
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold text-[#2E4A3B] tracking-tight mb-4">
-            Parabéns! Seja muito bem-vindo ao Instituto do Sabor
+        {/* Cabeçalho */}
+        <div className="space-y-3">
+          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-[#B84A24]">
+            Instituto do Sabor
+          </p>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#2E4A3B] tracking-tight">
+            Pagamento confirmado!
           </h1>
-
-          <p className="text-base sm:text-lg text-[#2E4A3B]/85 max-w-xl mx-auto leading-relaxed">
-            Seu pagamento foi confirmado com sucesso. Agora a sua cozinha vai trabalhar a favor do
-            seu descanso e do seu prazer.
+          <p className="text-base leading-relaxed text-[#2E4A3B]/85">
+            Sua compra do <strong>Refeições em Cápsula</strong> foi aprovada e o acesso completo
+            está a caminho do seu e-mail agora mesmo.
           </p>
         </div>
 
-        {/* Card Principal de Instruções de Acesso */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-md border border-[#E5DCD0] mb-8">
-          <div className="flex items-center gap-3 pb-6 border-b border-[#E5DCD0]">
-            <div className="w-10 h-10 rounded-xl bg-[#B84A24]/10 text-[#B84A24] flex items-center justify-center shrink-0">
-              <Mail className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#2E4A3B]">
-                Como acessar o seu material agora
-              </h2>
-              <p className="text-xs sm:text-sm text-[#8A5A3B]">
-                Enviamos os dados de login para a sua caixa de entrada
-              </p>
-            </div>
-          </div>
+        {/* Card: O que acontece agora */}
+        <div className="rounded-2xl border border-[#E5DCD0] bg-white p-6 sm:p-7 text-left space-y-4 shadow-sm">
+          <h2 className="font-serif text-lg sm:text-xl font-bold text-[#2E4A3B] flex items-center gap-2">
+            <Mail className="h-5 w-5 text-[#B84A24]" /> O que acontece agora
+          </h2>
+          <ol className="space-y-3 text-sm leading-relaxed text-[#2E4A3B]/85 list-decimal pl-5">
+            <li>
+              A <strong>Kiwify</strong> envia seu acesso para o e-mail usado na compra, com o
+              assunto <em>"Seu acesso ao Refeições em Cápsula"</em> (costuma chegar em até 2
+              minutos).
+            </li>
+            <li>
+              Clique no link recebido para <strong>criar sua senha</strong> e entrar na área de
+              membros exclusiva.
+            </li>
+            <li>
+              <strong>Não encontrou o e-mail?</strong> Dá uma olhada na pasta de <em>Spam</em>,{' '}
+              <em>Lixo Eletrônico</em> ou na aba <em>Promoções</em> — e-mails de acesso adoram sumir
+              lá.
+            </li>
+            <li>
+              <strong>Tudo pronto:</strong> dentro da área você já encontra o método completo, as
+              229 fichas e os 4 bônus (Manual do Freezer, Planilha Inteligente, Tabela de Macros e
+              Ocasiões Especiais) totalmente liberados.
+            </li>
+          </ol>
+        </div>
 
-          <div className="py-6 space-y-5 text-sm sm:text-base text-[#2E4A3B]/90">
-            <div className="flex items-start gap-3.5">
-              <span className="font-mono font-bold text-xs w-6 h-6 rounded-full bg-[#2E4A3B] text-white flex items-center justify-center shrink-0 mt-0.5">
-                1
-              </span>
-              <div>
-                <strong>Verifique seu e-mail:</strong> Procure por uma mensagem da{' '}
-                <strong>Kiwify</strong> com o assunto "Seu acesso ao Refeições em Cápsula".
-              </div>
-            </div>
+        {/* Botão de ação e suporte */}
+        <div className="flex flex-col items-center gap-3 pt-2">
+          <a
+            href="https://dashboard.kiwify.com.br"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#B84A24] hover:bg-[#963919] px-8 py-3.5 font-semibold text-[#F7F1E7] shadow-md transition-all cursor-pointer"
+          >
+            <span>Ir para a Área de Membros</span>
+            <ExternalLink className="h-4 w-4" />
+          </a>
 
-            <div className="flex items-start gap-3.5">
-              <span className="font-mono font-bold text-xs w-6 h-6 rounded-full bg-[#2E4A3B] text-white flex items-center justify-center shrink-0 mt-0.5">
-                2
-              </span>
-              <div>
-                <strong>Crie sua senha:</strong> Clique no link recebido para definir sua senha de
-                acesso à área de membros exclusiva.
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3.5">
-              <span className="font-mono font-bold text-xs w-6 h-6 rounded-full bg-[#2E4A3B] text-white flex items-center justify-center shrink-0 mt-0.5">
-                3
-              </span>
-              <div>
-                <strong>Acesse vitaliciamente:</strong> Todos os 4 bônus, fichas de montagem e o
-                guia completo já estão liberados para download e visualização.
-              </div>
-            </div>
-          </div>
-
-          {/* Dica da Caixa de Spam */}
-          <div className="bg-[#FAF7F2] rounded-2xl p-4 sm:p-5 border border-[#E5DCD0] text-xs sm:text-sm text-[#8A5A3B] flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-[#B84A24] shrink-0 mt-0.5" />
-            <p>
-              <strong>Não encontrou o e-mail?</strong> Olhe também na pasta de <em>Spam</em>,{' '}
-              <em>Lixo Eletrônico</em> ou na aba <em>Promoções</em> (no Gmail). Costuma chegar em
-              menos de 2 minutos.
-            </p>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-[#E5DCD0] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[#8A5A3B] flex items-center justify-center gap-1.5 flex-wrap">
+            <span>Dúvidas com o acesso? Fala com a gente no Instagram:</span>
             <a
-              href="https://dashboard.kiwify.com.br"
+              href="https://instagram.com/institutodosabor"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm sm:text-base text-white bg-[#B84A24] hover:bg-[#963919] transition-all shadow-md cursor-pointer"
+              className="inline-flex items-center gap-1 font-semibold text-[#B84A24] hover:underline"
             >
-              <span>Ir para a Área de Membros Kiwify</span>
-              <ExternalLink className="w-4 h-4" />
+              <Instagram className="w-3.5 h-3.5" />
+              <span>@institutodosabor</span>
             </a>
-
-            <Link
-              to="/"
-              className="text-xs sm:text-sm text-[#8A5A3B] hover:text-[#2E4A3B] underline underline-offset-4"
-            >
-              Voltar à página inicial
-            </Link>
-          </div>
-        </div>
-
-        {/* O que você já tem em mãos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <div className="bg-white rounded-2xl p-5 border border-[#E5DCD0]">
-            <div className="flex items-center gap-2.5 font-serif font-bold text-base text-[#2E4A3B] mb-1.5">
-              <BookOpen className="w-4 h-4 text-[#B84A24]" />
-              <span>O Método & 229 Fichas</span>
-            </div>
-            <p className="text-xs sm:text-sm text-[#2E4A3B]/80">
-              O sistema das 24 bases completas para acabar com o estresse diário do jantar.
-            </p>
-          </div>
-
-          <div className="bg-[#FAF7F2] rounded-2xl p-5 border border-[#C9D8DD]">
-            <div className="flex items-center gap-2.5 font-serif font-bold text-base text-[#2E4A3B] mb-1.5">
-              <Snowflake className="w-4 h-4 text-[#2E4A3B]" />
-              <span>Os 4 Bônus Exclusivos</span>
-            </div>
-            <p className="text-xs sm:text-sm text-[#2E4A3B]/80">
-              Manual do Freezer, Planilha inteligente, Tabela de Macros e Ocasiões Especiais.
-            </p>
-          </div>
-        </div>
-
-        {/* Garantia de 7 dias reiterada com tranquilidade */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5DCD0] flex items-center gap-4 text-xs sm:text-sm text-[#2E4A3B]/85">
-          <ShieldCheck className="w-8 h-8 text-[#2E4A3B] shrink-0" />
-          <p>
-            Lembre-se: você tem <strong>7 dias de garantia incondicional</strong>. Se por qualquer
-            razão o método não fizer sentido para a sua rotina, o reembolso pode ser solicitado na
-            própria Kiwify em 1 clique.
           </p>
+
+          <Link
+            to="/"
+            className="text-xs text-[#8A5A3B] hover:text-[#2E4A3B] underline underline-offset-4 pt-1"
+          >
+            Voltar à página inicial
+          </Link>
         </div>
 
-        {/* Rodapé simplificado do obrigado */}
-        <div className="text-center mt-12 text-xs text-[#8A5A3B] flex items-center justify-center gap-2">
-          <Heart className="w-3.5 h-3.5 text-[#B84A24]" />
-          <span>Instituto do Sabor • Cozinhe para servir ao seu prazer.</span>
+        {/* Garantia */}
+        <div className="flex items-center justify-center gap-2 text-xs text-[#2E4A3B]/70 pt-2 border-t border-[#E5DCD0]">
+          <ShieldCheck className="h-4 w-4 text-[#2E4A3B]" />
+          <span>Garantia incondicional de 7 dias — sem perguntas, sem burocracia</span>
         </div>
       </div>
     </div>
   )
 }
+
+export default Obrigado

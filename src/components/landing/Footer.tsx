@@ -1,5 +1,6 @@
 import React from 'react'
-import { ShieldCheck, Heart } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ShieldCheck, Heart, Instagram } from 'lucide-react'
 
 export const Footer: React.FC = () => {
   return (
@@ -40,17 +41,23 @@ export const Footer: React.FC = () => {
         {/* Copyright & Links */}
         <div className="pt-4 border-t border-cream/10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-cream/60 gap-3">
           <p>© {new Date().getFullYear()} Instituto do Sabor. Todos os direitos reservados.</p>
-          <div className="flex items-center gap-4">
-            <a href="#termos" className="hover:text-cream transition-colors">
-              Termos de Uso
-            </a>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link to="/privacidade" className="hover:text-cream transition-colors">
+              Política de Privacidade
+            </Link>
             <span className="text-cream/30">•</span>
-            <a href="#privacidade" className="hover:text-cream transition-colors">
-              Políticas de Privacidade
-            </a>
+            <Link to="/exclusao-de-dados" className="hover:text-cream transition-colors">
+              Exclusão de Dados
+            </Link>
             <span className="text-cream/30">•</span>
-            <a href="#contato" className="hover:text-cream transition-colors">
-              Suporte Kiwify
+            <a
+              href="https://instagram.com/institutodosabor"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 hover:text-cream transition-colors"
+            >
+              <Instagram className="w-3 h-3 text-terracotta" />
+              <span>@institutodosabor</span>
             </a>
           </div>
         </div>
