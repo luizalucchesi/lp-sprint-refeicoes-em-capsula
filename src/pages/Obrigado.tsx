@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
 import { dispararPurchaseSPRINT, inicializarMetaPixel } from '@/lib/tracking/sprintTracker'
 import { CheckCircle2, Mail, ExternalLink, ShieldCheck, Instagram } from 'lucide-react'
 
@@ -94,13 +93,6 @@ const Obrigado: React.FC = () => {
               <span>@institutodosabor</span>
             </a>
           </p>
-
-          <Link
-            to="/"
-            className="text-xs text-[#8A5A3B] hover:text-[#2E4A3B] underline underline-offset-4 pt-1"
-          >
-            Voltar à página inicial
-          </Link>
         </div>
 
         {/* Garantia */}
