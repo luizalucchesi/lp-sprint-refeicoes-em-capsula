@@ -172,15 +172,15 @@ export const SecaoOQueVoceRecebe: React.FC = () => {
             </div>
 
             <div className="lg:col-span-4 flex justify-center">
-              <div className="rounded-2xl overflow-hidden border-2 border-cream/30 shadow-2xl max-w-md w-full aspect-[4/3] bg-cream-100 flex items-center justify-center">
+              <div className="rounded-2xl overflow-hidden border-2 border-cream/30 shadow-2xl max-w-md w-full aspect-[4/3] bg-[#F7F3EB] flex items-center justify-center">
                 <img
                   src={bannerManualDoFreezer}
                   alt="Manual do Freezer: Como as 24 bases cabem no seu congelador"
                   className="w-full h-full object-cover"
                   loading="lazy"
                   decoding="async"
-                  width={800}
-                  height={600}
+                  width={600}
+                  height={450}
                 />
               </div>
             </div>

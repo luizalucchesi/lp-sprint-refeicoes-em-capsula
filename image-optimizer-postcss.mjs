@@ -8,7 +8,7 @@ const TARGET_RULES = [
     maxWidth: 960,
   },
   {
-    pattern: /(screenshot-2026-10-23-112444-c8077|manual-do-freezer)/i,
+    pattern: /(screenshot-2026-10-23-112444-c8077|manual-do-freezer|manual-aa09b)/i,
     maxWidth: 1200,
   },
   {

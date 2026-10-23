@@ -32,7 +32,7 @@ export const SecaoOs4Bonus: React.FC = () => {
             alt="Manual do Freezer: Como as 24 bases cabem no seu congelador"
             loading="lazy"
             decoding="async"
-            width={800}
+            width={600}
             height={450}
             className="w-full h-full object-cover select-none"
           />
