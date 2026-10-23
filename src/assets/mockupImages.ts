@@ -5,3 +5,4 @@ export { default as tabelaMacrosBonus3 } from './captura-de-tela-2026-10-22-2127
 export { default as bannerManualDoFreezer } from './manual-aa09b.jpg'
 export { default as heroPanelaFrango } from './1-7e94d.jpg'
 export { default as geladeiraGavetaLegumes } from './2-ec1a1.jpg'
+export { default as freezerBonus1 } from './imagem1-3d289.png'

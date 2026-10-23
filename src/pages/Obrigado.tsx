@@ -1,11 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  dispararPurchaseSPRINT,
-  inicializarMetaPixel,
-  obterOuCriarSessionId,
-  capturarEPersistirUtms,
-} from '@/lib/tracking/sprintTracker'
+import { dispararPurchaseSPRINT, inicializarMetaPixel } from '@/lib/tracking/sprintTracker'
 import {
   CheckCircle,
   Mail,
@@ -20,13 +15,12 @@ import {
 } from 'lucide-react'
 
 export default function Obrigado() {
-  // Disparo do evento Purchase EXCLUSIVAMENTE server-side (sem fbq client-side)
+  // Config global definida antes do disparo principal de Purchase (100% server-side, SEM fbq client-side)
   useEffect(() => {
-    obterOuCriarSessionId()
-    capturarEPersistirUtms()
-    inicializarMetaPixel()
+    window.SPRINT_VALOR = 47.0
+    window.SPRINT_PRODUCT_ID = 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146'
 
-    // Dispara via SPRINT CAPI server-side com session_id e dados canônicos
+    inicializarMetaPixel()
     dispararPurchaseSPRINT(47.0)
   }, [])
 

@@ -8,7 +8,7 @@ import {
   capaOcasioesEspeciais,
   planilhaMestraBonus2,
   tabelaMacrosBonus3,
-  bannerManualDoFreezer,
+  freezerBonus1,
 } from '@/assets/mockupImages'
 
 export const SecaoOs4Bonus: React.FC = () => {
@@ -23,7 +23,7 @@ export const SecaoOs4Bonus: React.FC = () => {
       icon: Snowflake,
       coverData: {
         ...EBOOK_COVERS.manualDoFreezer,
-        imageUrl: bannerManualDoFreezer,
+        imageUrl: freezerBonus1,
       },
       customCover: (
         <div
@@ -31,18 +31,13 @@ export const SecaoOs4Bonus: React.FC = () => {
           aria-label="Capa do Manual do Freezer - Foto de organização e armazenamento"
         >
           <img
-            src={bannerManualDoFreezer}
+            src={freezerBonus1}
             alt="Manual do Freezer: Organização de saquinhos e porções no congelador"
             loading="lazy"
             decoding="async"
             width={600}
-            height={450}
-            className="w-full h-full object-cover pointer-events-none select-none transition-transform duration-500 group-hover:scale-[1.03]"
-            style={{
-              objectPosition: '85% center',
-              transform: 'scale(1.35)',
-              transformOrigin: '85% center',
-            }}
+            height={600}
+            className="w-full h-full object-cover object-center pointer-events-none select-none transition-transform duration-500 group-hover:scale-[1.03]"
           />
         </div>
       ),

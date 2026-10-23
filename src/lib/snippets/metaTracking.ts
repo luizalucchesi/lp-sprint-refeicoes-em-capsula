@@ -3,12 +3,14 @@
  * Integrates Meta Pixel (fbq) + Conversions Endpoint (Supabase edge function).
  */
 
-export const META_PIXEL_ID = '123456789012345' // Configure aqui o seu Meta Pixel ID
+export const META_PIXEL_ID = '123456789012345'
 export const META_CONVERSIONS_ENDPOINT =
   'https://aomkmulukjuwsbrlbfgl.supabase.co/functions/v1/conversoes'
 export const KIWIFY_CHECKOUT_URL = 'https://pay.kiwify.com.br/kPUhdIm'
-
-const SESSION_STORAGE_KEY = 'metodoplana_session_id'
+export const NEGOCIO_ID = 'instituto-do-sabor'
+export const SESSION_KEY = 'sprint_instituto-do-sabor_session_id'
+export const SESSION_TS_KEY = 'sprint_instituto-do-sabor_session_ts'
+export const SESSION_TTL = 30 * 60 * 1000
 
 declare global {
   interface Window {
@@ -16,28 +18,69 @@ declare global {
     _fbq?: unknown
   }
 }
+
 /**
- * Retorna ou gera um ID único e persistido para a sessão.
+ * Retorna cookies _fbp e _fbc
  */
-export function getOrCreateSessionId(): string {
-  if (typeof window === 'undefined') return ''
+export function lerCookies(): { fbp?: string; fbc?: string } {
+  const cookies: { fbp?: string; fbc?: string } = {}
+  if (typeof document === 'undefined') return cookies
   try {
-    const existing = localStorage.getItem(SESSION_STORAGE_KEY)
-    if (existing) return existing
-    const newId = 'sess_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36)
-    localStorage.setItem(SESSION_STORAGE_KEY, newId)
-    return newId
+    const partes = (document.cookie || '').split('; ')
+    for (let i = 0; i < partes.length; i++) {
+      const par = partes[i].split('=')
+      if (par[0] === '_fbp') cookies.fbp = decodeURIComponent(par[1] || '')
+      if (par[0] === '_fbc') cookies.fbc = decodeURIComponent(par[1] || '')
+    }
   } catch {
-    return 'sess_fallback_' + Date.now()
+    /* ignore */
   }
+  return cookies
 }
 
 /**
- * Gera um event_id canônico e único para deduplicação entre Pixel do navegador e CAPI (servidor).
+ * Hash determinístico curto da URL
+ */
+export function hashCurto(str: string): string {
+  let h = 5381
+  for (let i = 0; i < (str || '').length; i++) {
+    h = (h << 5) + h + str.charCodeAt(i)
+    h = h & 0xffffffff
+  }
+  return Math.abs(h).toString(36).slice(0, 8)
+}
+
+/**
+ * Retorna ou gera o ID de sessão único do Instituto do Sabor (30 min TTL)
+ */
+export function getOrCreateSessionId(): string {
+  if (typeof window === 'undefined') return 's_ssr_0'
+  const agora = Date.now()
+  let sessionId = ''
+  try {
+    const sExistente = localStorage.getItem(SESSION_KEY)
+    const sTs = parseInt(localStorage.getItem(SESSION_TS_KEY) || '0', 10)
+    if (sExistente && sTs && agora - sTs < SESSION_TTL) {
+      sessionId = sExistente
+    } else {
+      sessionId = 's_' + agora + '_' + Math.random().toString(36).substring(2, 8)
+      localStorage.setItem(SESSION_KEY, sessionId)
+    }
+    localStorage.setItem(SESSION_TS_KEY, agora.toString())
+  } catch {
+    sessionId = 's_' + agora + '_' + Math.random().toString(36).substring(2, 8)
+  }
+  return sessionId
+}
+
+/**
+ * Gera um event_id canônico e único para deduplicação entre Pixel do navegador e CAPI.
  */
 export function generateCanonicalEventId(eventName: string): string {
   const sessionId = getOrCreateSessionId()
-  return `${eventName}_${sessionId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+  const urlNorm =
+    typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''
+  return `${eventName}_${sessionId}_${hashCurto(urlNorm)}`
 }
 
 let pixelInitialized = false
@@ -48,7 +91,6 @@ let pixelInitialized = false
 export function initMetaPixel(pixelId: string = META_PIXEL_ID): void {
   if (typeof window === 'undefined' || pixelInitialized) return
 
-  // Verifica se o script do fbq já foi inserido
   if (!window.fbq) {
     /* eslint-disable */
     ;(function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
@@ -71,8 +113,12 @@ export function initMetaPixel(pixelId: string = META_PIXEL_ID): void {
   }
 
   if (window.fbq) {
-    window.fbq('init', pixelId)
-    pixelInitialized = true
+    try {
+      window.fbq('init', pixelId)
+      pixelInitialized = true
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -81,18 +127,20 @@ export function initMetaPixel(pixelId: string = META_PIXEL_ID): void {
  */
 export function trackPageView(pageUrl?: string): void {
   if (typeof window === 'undefined') return
-  const eventId = generateCanonicalEventId('PageView')
   const sessionId = getOrCreateSessionId()
   const currentUrl = pageUrl || window.location.href
+  const eventId = 'PageView_' + sessionId + '_' + hashCurto(currentUrl)
 
-  // 1. Client-side fbq
   if (window.fbq) {
-    window.fbq('track', 'PageView', {}, { eventID: eventId })
+    try {
+      window.fbq('track', 'PageView', {}, { eventID: eventId })
+    } catch {
+      /* ignore */
+    }
   }
 
-  // 2. Server-side conversões
   sendToConversionsApi({
-    event_name: 'PageView',
+    evento: 'PageView',
     event_id: eventId,
     session_id: sessionId,
     event_source_url: currentUrl,
@@ -102,30 +150,29 @@ export function trackPageView(pageUrl?: string): void {
 /**
  * Disparado ao clicar no botão de CTA / checkout.
  */
-export function trackInitiateCheckout(customData?: Record<string, any>): void {
+export function trackInitiateCheckout(customData?: Record<string, unknown>): void {
   if (typeof window === 'undefined') return
-  const eventId = generateCanonicalEventId('InitiateCheckout')
   const sessionId = getOrCreateSessionId()
-  const data = {
-    content_name: 'Refeições em Cápsula + 4 bônus',
-    content_category: 'Culinária / Sistema de Cozinha',
-    value: 47.0,
-    currency: 'BRL',
-    ...customData,
-  }
+  const eventId = 'InitiateCheckout_' + sessionId
 
-  // 1. Client-side
   if (window.fbq) {
-    window.fbq('track', 'InitiateCheckout', data, { eventID: eventId })
+    try {
+      window.fbq(
+        'track',
+        'InitiateCheckout',
+        { content_name: 'Checkout', ...customData },
+        { eventID: eventId },
+      )
+    } catch {
+      /* ignore */
+    }
   }
 
-  // 2. Server-side
   sendToConversionsApi({
-    event_name: 'InitiateCheckout',
+    evento: 'InitiateCheckout',
     event_id: eventId,
     session_id: sessionId,
     event_source_url: window.location.href,
-    custom_data: data,
   })
 }
 
@@ -136,60 +183,48 @@ export function trackInitiateCheckout(customData?: Record<string, any>): void {
 export function sendServerSidePurchase(params: {
   value?: number
   currency?: string
-  orderId?: string
-  userEmail?: string
-  userName?: string
+  productId?: string
 }): Promise<void> {
-  const eventId = generateCanonicalEventId('Purchase')
   const sessionId = getOrCreateSessionId()
+  if (!sessionId) return Promise.resolve()
+
+  const canonicalEventId = sessionId + '_purchase'
 
   return sendToConversionsApi({
-    event_name: 'Purchase',
-    event_id: eventId,
+    evento: 'Purchase',
+    event_id: canonicalEventId,
     session_id: sessionId,
     event_source_url: typeof window !== 'undefined' ? window.location.href : '',
-    custom_data: {
-      content_name: 'Refeições em Cápsula + 4 bônus',
-      value: params.value ?? 47.0,
-      currency: params.currency ?? 'BRL',
-      order_id: params.orderId || 'ord_' + Date.now(),
-    },
-    user_data: {
-      email: params.userEmail,
-      name: params.userName,
-    },
+    valor: params.value ?? 47.0,
+    moeda: params.currency ?? 'BRL',
+    product_id: params.productId ?? 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146',
   })
 }
 
 /**
  * Envia o evento para a edge function de conversões (Supabase).
  */
-async function sendToConversionsApi(payload: {
-  event_name: string
-  event_id: string
-  session_id: string
-  event_source_url: string
-  custom_data?: Record<string, any>
-  user_data?: Record<string, any>
-}): Promise<void> {
+async function sendToConversionsApi(payload: Record<string, unknown>): Promise<void> {
   try {
+    const cookiesAtuais = lerCookies()
+    const userData: Record<string, string> = {}
+    if (cookiesAtuais.fbp) userData.fbp = cookiesAtuais.fbp
+    if (cookiesAtuais.fbc) userData.fbc = cookiesAtuais.fbc
+
     const body = JSON.stringify({
+      negocio_id: NEGOCIO_ID,
+      client_user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+      user_data: Object.keys(userData).length > 0 ? userData : undefined,
       ...payload,
-      timestamp: Math.floor(Date.now() / 1000),
-      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     })
 
     await fetch(META_CONVERSIONS_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body,
-      // keepalive para que a requisição complete mesmo com navegação de página
       keepalive: true,
     })
   } catch (error) {
-    // Falha silenciosa para não quebrar a navegação do usuário
     console.debug('[MetaTracking SPRINT] Conversions API dispatch note:', error)
   }
 }

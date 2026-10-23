@@ -1,15 +1,20 @@
 /**
- * Módulo de Rastreamento Canônico SPRINT + Meta Pixel.
+ * Módulo de Rastreamento Canônico SPRINT + Meta Pixel (ref 59168).
  *
- * Reproduz rigorosamente as regras canônicas do SPRINT (projeto de referência 59168):
- * - Normalização de chaves de query (?utm_source, %3Futm_source -> utm_source)
+ * Implementação funcionalmente idêntica aos snippets oficiais do SPRINT:
+ * - Negócio: 'instituto-do-sabor'
+ * - Sessão persistente única (sprint_instituto-do-sabor_session_id): sobrevive à navegação e renova só após 30 min de inatividade
  * - Persistência de UTMs no localStorage ('sprint_utms')
- * - Sessão de 30 min ('metodoplana_session_id', fallback 'sprint_session_id')
- * - Event IDs canônicos idênticos entre Pixel e API:
- *     PageView: PageView_<session_id>_<hashCurto>
- *     InitiateCheckout: InitiateCheckout_<session_id>
- *     Purchase: <session_id>_purchase (enviado 100% SERVER-SIDE via endpoint SPRINT, NUNCA fbq Purchase no navegador)
- * - Propagação automática de UTMs e session_id para URLs de checkout Kiwify
+ * - Cookies _fbp e _fbc lidos a cada evento
+ * - Hash determinístico curto da URL
+ * - Atribuição e Detecção de Tráfego Pago
+ * - Guard client-side de 30s para evitar re-disparos idênticos
+ * - Helper central window.CRM.enviar (Pixel com eventID canônico + fetch ao CRM com keepalive)
+ * - Evento PageView: PageView_<session_id>_<hashCurto>
+ * - Propagação automática de UTMs e session_id para URLs Kiwify
+ * - InitiateCheckout no click delegado com eventID InitiateCheckout_<session_id>
+ * - ContentRead aos 85% de rolagem
+ * - Purchase em /obrigado 100% SERVER-SIDE (NUNCA fbq('track', 'Purchase') no navegador)
  */
 
 import {
@@ -20,12 +25,18 @@ import {
   SPRINT_VALOR_REAIS,
 } from './config'
 
+export const ENDPOINT = SPRINT_CONVERSOES_ENDPOINT
+export const NEGOCIO_ID = SPRINT_NEGOCIO_SLUG
+export const SESSION_KEY = 'sprint_instituto-do-sabor_session_id'
+export const SESSION_TS_KEY = 'sprint_instituto-do-sabor_session_ts'
+export const SESSION_TTL = 30 * 60 * 1000
+
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void
     _fbq?: unknown
     CRM?: {
-      enviar: (
+      enviar?: (
         evento: string,
         canonicalId: string,
         extra?: Record<string, unknown>,
@@ -37,41 +48,8 @@ declare global {
   }
 }
 
-export function normalizarChaveQuery(chaveBruta: string): string {
-  let chaveNorm = chaveBruta
-  try {
-    chaveNorm = decodeURIComponent(chaveNorm)
-  } catch {
-    /* ignore */
-  }
-  return chaveNorm.replace(/^[s?%3F]+/i, '').trim()
-}
-
-export function extrairUrlParams(searchOuUrl?: string): URLSearchParams {
-  const search = searchOuUrl
-    ? searchOuUrl.includes('?')
-      ? searchOuUrl.split('?')[1]
-      : searchOuUrl
-    : typeof window !== 'undefined'
-      ? window.location.search
-      : ''
-
-  const params = new URLSearchParams()
-  try {
-    const rawParams = new URLSearchParams(search)
-    rawParams.forEach((valor, chaveBruta) => {
-      const chaveNorm = normalizarChaveQuery(chaveBruta)
-      if (chaveNorm && (!params.has(chaveNorm) || valor)) {
-        params.set(chaveNorm, valor)
-      }
-    })
-  } catch {
-    /* ignore */
-  }
-  return params
-}
-
-export function extrairCookiesMeta(): { fbp?: string; fbc?: string } {
+// 1. Cookies _fbp e _fbc (releitura a cada evento para capturar cookie recém-gravado pelo pixel)
+export function lerCookies(): { fbp?: string; fbc?: string } {
   const cookies: { fbp?: string; fbc?: string } = {}
   if (typeof document === 'undefined') return cookies
   try {
@@ -86,8 +64,10 @@ export function extrairCookiesMeta(): { fbp?: string; fbc?: string } {
   }
   return cookies
 }
+export const extrairCookiesMeta = lerCookies
 
-export function gerarHashCurto(str: string): string {
+// 2. Hash determinístico curto da URL para diferenciar páginas sem gerar novos IDs a cada re-render
+export function hashCurto(str: string): string {
   let h = 5381
   for (let i = 0; i < (str || '').length; i++) {
     h = (h << 5) + h + str.charCodeAt(i)
@@ -95,11 +75,93 @@ export function gerarHashCurto(str: string): string {
   }
   return Math.abs(h).toString(36).slice(0, 8)
 }
+export const gerarHashCurto = hashCurto
 
-export const SESSION_KEY = 'metodoplana_session_id'
-export const SESSION_TS_KEY = 'metodoplana_session_ts'
-export const SESSION_TTL = 30 * 60 * 1000
+// 3. Captura e persistência de UTMs e parâmetros de tráfego pago no localStorage
+export function normalizarChaveQuery(chaveBruta: string): string {
+  let chaveNorm = chaveBruta
+  try {
+    chaveNorm = decodeURIComponent(chaveNorm)
+  } catch {
+    /* ignore */
+  }
+  return chaveNorm.replace(/^[s?%3F]+/i, '').trim()
+}
 
+export function extrairUrlParams(searchOuUrl?: string): URLSearchParams {
+  let params = new URLSearchParams()
+  if (typeof window === 'undefined') return params
+
+  const search = searchOuUrl
+    ? searchOuUrl.includes('?')
+      ? searchOuUrl.split('?')[1]
+      : searchOuUrl
+    : window.location.search
+
+  try {
+    const rawParams = new URLSearchParams(search)
+    rawParams.forEach((valor, chaveBruta) => {
+      let chaveNorm = chaveBruta
+      try {
+        chaveNorm = decodeURIComponent(chaveNorm)
+      } catch {
+        /* ignore */
+      }
+      chaveNorm = chaveNorm.replace(/^[s?%3F]+/i, '').trim()
+      if (chaveNorm && (!params.has(chaveNorm) || valor)) {
+        params.set(chaveNorm, valor)
+      }
+    })
+  } catch {
+    try {
+      params = new URLSearchParams(search)
+    } catch {
+      /* ignore */
+    }
+  }
+  return params
+}
+
+export const utmKeys = [
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_content',
+  'utm_term',
+  'campaign_id',
+  'meta_campaign_id',
+  'ad_id',
+  'adset_id',
+  'fbclid',
+  'adset_name',
+  'ad_name',
+  'campaign_name',
+]
+
+export function capturarEPersistirUtms(): Record<string, string> {
+  if (typeof window === 'undefined') return {}
+  const urlParams = extrairUrlParams()
+  let utms: Record<string, string> = {}
+  try {
+    const salvos = localStorage.getItem('sprint_utms')
+    if (salvos) utms = JSON.parse(salvos) || {}
+  } catch {
+    /* ignore */
+  }
+
+  utmKeys.forEach((k) => {
+    const v = urlParams.get(k)
+    if (v) utms[k] = v
+  })
+  try {
+    localStorage.setItem('sprint_utms', JSON.stringify(utms))
+  } catch {
+    /* ignore */
+  }
+  return utms
+}
+
+// 4. Sessão persistente única (sprint_instituto-do-sabor_session_id): sobrevive à navegação e renova só após 30 min de inatividade
 export function obterOuCriarSessionId(): string {
   if (typeof window === 'undefined') return 's_ssr_0'
   const agora = Date.now()
@@ -120,46 +182,7 @@ export function obterOuCriarSessionId(): string {
   return sessionId
 }
 
-export function capturarEPersistirUtms(): Record<string, string> {
-  if (typeof window === 'undefined') return {}
-  const urlParams = extrairUrlParams()
-  const utmKeys = [
-    'utm_source',
-    'utm_medium',
-    'utm_campaign',
-    'utm_content',
-    'utm_term',
-    'campaign_id',
-    'meta_campaign_id',
-    'ad_id',
-    'adset_id',
-    'fbclid',
-    'adset_name',
-    'ad_name',
-    'campaign_name',
-  ]
-  let utms: Record<string, string> = {}
-  try {
-    const salvos = localStorage.getItem('sprint_utms')
-    if (salvos) utms = JSON.parse(salvos) || {}
-  } catch {
-    /* ignore */
-  }
-
-  utmKeys.forEach((k) => {
-    const v = urlParams.get(k)
-    if (v) utms[k] = v
-  })
-
-  try {
-    localStorage.setItem('sprint_utms', JSON.stringify(utms))
-  } catch {
-    /* ignore */
-  }
-
-  return utms
-}
-
+// 5. Atribuição e Detecção de Tráfego Pago
 export function detectarTrafegoPago(utms: Record<string, string>): boolean {
   if (typeof window === 'undefined') return false
   const urlParams = extrairUrlParams()
@@ -182,9 +205,11 @@ export function detectarTrafegoPago(utms: Record<string, string>): boolean {
   )
 }
 
-function deveDisparar(tipo: string, urlNorm: string, sessionId: string): boolean {
+// 6. Guard client-side de 30s para evitar re-disparos idênticos no navegador
+export function deveDisparar(tipo: string, urlNorm: string, customSessionId?: string): boolean {
   if (typeof window === 'undefined') return false
-  const chave = 'sprint_guard_' + sessionId + '_' + tipo + '_' + gerarHashCurto(urlNorm)
+  const sess = customSessionId || obterOuCriarSessionId()
+  const chave = 'sprint_guard_' + sess + '_' + tipo + '_' + hashCurto(urlNorm)
   const agoraMs = Date.now()
   try {
     const ultimo = parseInt(localStorage.getItem(chave) || '0', 10)
@@ -196,9 +221,7 @@ function deveDisparar(tipo: string, urlNorm: string, sessionId: string): boolean
   }
 }
 
-/**
- * Inicializa a biblioteca Meta Pixel no navegador uma única vez
- */
+// Inicializador Meta Pixel base
 export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
   if (typeof window === 'undefined') return
   if (window.fbq) return /* eslint-disable */
@@ -216,7 +239,7 @@ export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
     t.async = !0
     t.src = v
     s = b.getElementsByTagName(e)[0]
-    s.parentNode.insertBefore(t, s)
+    s?.parentNode?.insertBefore(t, s)
   })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js')
   /* eslint-enable */
 
@@ -229,9 +252,7 @@ export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
   }
 }
 
-/**
- * Helper central de despacho SPRINT (dispara Meta Pixel com eventID canônico + fetch ao CRM)
- */
+// 7. Helper central CRM.enviar: dispara Meta Pixel com eventID canônico + fetch ao CRM com keepalive
 export function enviarEventoSPRINT(
   evento: string,
   canonicalId: string,
@@ -243,7 +264,7 @@ export function enviarEventoSPRINT(
   const utms = capturarEPersistirUtms()
   const urlParams = extrairUrlParams()
   const urlAtual = window.location.href
-  const cookiesAtuais = extrairCookiesMeta()
+  const cookiesAtuais = lerCookies()
   const userData: Record<string, string> = {}
   if (cookiesAtuais.fbp) userData.fbp = cookiesAtuais.fbp
   if (cookiesAtuais.fbc) userData.fbc = cookiesAtuais.fbc
@@ -264,13 +285,19 @@ export function enviarEventoSPRINT(
   const adsetName =
     rawAdsetNameParam ||
     rawAdNameParam ||
-    (/^\s*\d+/i.test(utmTerm) || /^\d+$/.test(utmTerm) ? '' : utmTerm)
+    (/^s_\d+/i.test(utmTerm) || /^\d+$/.test(utmTerm) ? '' : utmTerm)
   const campaignName = rawCampaignNameParam || utmCampaign
-  const docReferrer = document.referrer || ''
-  const isPaid = detectarTrafegoPago(utms)
+  const docReferrer = typeof document !== 'undefined' ? document.referrer || '' : ''
+  const isPaid =
+    /cpc|paid|ppc|ads|traffic/i.test(utmMedium) ||
+    Boolean(
+      fbclid ||
+      adId ||
+      adsetId ||
+      /(.|^)(facebook.com|fb.com|instagram.com|threads.net|messenger.com)/i.test(docReferrer),
+    )
   const fonteNormalizada = utmSource || (fbclid ? 'meta' : docReferrer ? 'referral' : 'direto')
 
-  // Dispara Pixel no navegador COM eventID para deduplicação com CAPI
   if (typeof window.fbq === 'function') {
     try {
       window.fbq('track', evento, extra || {}, { eventID: canonicalId })
@@ -279,13 +306,12 @@ export function enviarEventoSPRINT(
     }
   }
 
-  // Dispara fetch ao CRM SPRINT (mantém métricas de funil internas)
   try {
-    fetch(SPRINT_CONVERSOES_ENDPOINT, {
+    fetch(ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        negocio_id: SPRINT_NEGOCIO_SLUG,
+        negocio_id: NEGOCIO_ID,
         session_id: sessionId,
         event_id: canonicalId,
         evento: evento,
@@ -305,32 +331,36 @@ export function enviarEventoSPRINT(
         user_data: Object.keys(userData).length > 0 ? userData : undefined,
       }),
       keepalive: Boolean(keepaliveOpt),
-    }).catch((e) => {
-      console.warn('Envio CRM SPRINT informativo:', e)
+    }).catch(function (e) {
+      console.error('Erro CRM.enviar (' + evento + '):', e)
     })
   } catch {
     /* ignore */
   }
 }
 
-/**
- * Dispara PageView canônico na Landing Page ou página qualquer
- */
+// Garante o binding global de window.CRM.enviar
+if (typeof window !== 'undefined') {
+  window.CRM = window.CRM || {}
+  window.CRM.enviar = enviarEventoSPRINT
+}
+
+// 8. Evento canônico PageView: PageView_<session_id>_<hashCurtoDaURL>
 export function dispararPageViewCanonico() {
   if (typeof window === 'undefined') return
   const sessionId = obterOuCriarSessionId()
-  capturarEPersistirUtms()
   const urlNormAtual = window.location.origin + window.location.pathname
-  const pageViewEventId = 'PageView_' + sessionId + '_' + gerarHashCurto(urlNormAtual)
-
+  const pageViewEventId = 'PageView_' + sessionId + '_' + hashCurto(urlNormAtual)
   if (deveDisparar('PageView', urlNormAtual, sessionId)) {
-    enviarEventoSPRINT('PageView', pageViewEventId, {})
+    if (window.CRM && typeof window.CRM.enviar === 'function') {
+      window.CRM.enviar('PageView', pageViewEventId, {})
+    } else {
+      enviarEventoSPRINT('PageView', pageViewEventId, {})
+    }
   }
 }
 
-/**
- * Enriquece uma URL de checkout Kiwify com session_id e UTMs capturadas
- */
+// 9. Propagador de Atribuição para Kiwify: anexa TODAS as UTMs da sessão + session_id aos links de checkout
 export function enriquecerUrlCheckout(urlOriginal: string): string {
   if (typeof window === 'undefined') return urlOriginal
   try {
@@ -348,8 +378,14 @@ export function enriquecerUrlCheckout(urlOriginal: string): string {
     const rawAdsetNameParam = utms.adset_name || urlParams.get('adset_name') || ''
     const rawAdNameParam = utms.ad_name || urlParams.get('ad_name') || ''
     const rawCampaignNameParam = utms.campaign_name || urlParams.get('campaign_name') || ''
-    const adId = utms.ad_id || ''
+    const adId = utms.ad_id || (/^\d+$/.test(utmContent) ? utmContent : '')
+    const adName = rawAdNameParam || (/^\d+$/.test(utmContent) ? '' : utmContent)
     const adsetId = utms.adset_id || ''
+    const utmTerm = utms.utm_term || ''
+    const adsetName =
+      rawAdsetNameParam ||
+      rawAdNameParam ||
+      (/^s_\d+/i.test(utmTerm) || /^\d+$/.test(utmTerm) ? '' : utmTerm)
 
     if (sessionId && !u.searchParams.get('utm_term')) u.searchParams.set('utm_term', sessionId)
     if (sessionId && !u.searchParams.get('session_id')) u.searchParams.set('session_id', sessionId)
@@ -363,49 +399,169 @@ export function enriquecerUrlCheckout(urlOriginal: string): string {
       u.searchParams.set('campaign_id', campaignId)
     if (rawCampaignNameParam && !u.searchParams.get('campaign_name'))
       u.searchParams.set('campaign_name', rawCampaignNameParam)
-    if (rawAdsetNameParam && !u.searchParams.get('adset_name'))
-      u.searchParams.set('adset_name', rawAdsetNameParam)
-    if (rawAdNameParam && !u.searchParams.get('ad_name'))
-      u.searchParams.set('ad_name', rawAdNameParam)
+    if (adsetName && !u.searchParams.get('adset_name')) u.searchParams.set('adset_name', adsetName)
+    if (adName && !u.searchParams.get('ad_name')) u.searchParams.set('ad_name', adName)
     if (adId && !u.searchParams.get('ad_id')) u.searchParams.set('ad_id', adId)
     if (adsetId && !u.searchParams.get('adset_id')) u.searchParams.set('adset_id', adsetId)
     if (fbclid && !u.searchParams.get('fbclid')) u.searchParams.set('fbclid', fbclid)
-
     return u.toString()
   } catch {
     return urlOriginal
   }
 }
 
-/**
- * Dispara InitiateCheckout canônico antes de redirecionar para a Kiwify
- */
+export function configurarCheckoutKiwify() {
+  if (typeof document === 'undefined') return
+  try {
+    const seletor =
+      'a[href*="kiwify"], a[href*="checkout"], button[data-checkout], a[data-checkout]'
+    const links = document.querySelectorAll(seletor)
+    links.forEach(function (elem) {
+      try {
+        if (elem.tagName === 'A' && (elem as HTMLAnchorElement).href) {
+          ;(elem as HTMLAnchorElement).href = enriquecerUrlCheckout(
+            (elem as HTMLAnchorElement).href,
+          )
+        }
+      } catch {
+        /* ignore url inválida */
+      }
+    })
+  } catch {
+    /* ignore */
+  }
+}
+
 export function dispararInitiateCheckoutCanonico() {
   if (typeof window === 'undefined') return
   const sessionId = obterOuCriarSessionId()
   const icUrl = window.location.origin + window.location.pathname
   if (deveDisparar('InitiateCheckout', icUrl, sessionId)) {
     const checkoutEventId = 'InitiateCheckout_' + sessionId
-    enviarEventoSPRINT('InitiateCheckout', checkoutEventId, { content_name: 'Checkout' }, true)
+    if (window.CRM && typeof window.CRM.enviar === 'function') {
+      window.CRM.enviar('InitiateCheckout', checkoutEventId, { content_name: 'Checkout' }, true)
+    } else {
+      enviarEventoSPRINT('InitiateCheckout', checkoutEventId, { content_name: 'Checkout' }, true)
+    }
   }
 }
 
 /**
- * Disparador de compra canônico na página /obrigado:
- * Regra inegociável do SPRINT:
- * 1. O disparo de Compra (Purchase) à Meta é 100% SERVER-SIDE via CAPI pelo endpoint SPRINT.
- * 2. NUNCA dispara `fbq('track', 'Purchase')` no navegador (evita duplicação).
- * 3. O event_id canônico é `<session_id>_purchase`.
- * 4. Se não houver session_id, NÃO dispara compra client-side.
+ * Inicializador da Landing Page (executa exatamente o snippet oficial)
  */
-export function dispararPurchaseSPRINT(customValor?: number) {
+export function inicializarRastreamentoLanding(): () => void {
+  if (typeof window === 'undefined') return () => {}
+
+  // 1. Inicializa pixel base se necessário
+  inicializarMetaPixel()
+
+  // 2. Captura UTMs e cria sessão
+  capturarEPersistirUtms()
+  const sessionId = obterOuCriarSessionId()
+
+  // 3. Garante window.CRM.enviar
+  window.CRM = window.CRM || {}
+  window.CRM.enviar = enviarEventoSPRINT
+
+  // 4. PageView canônico
+  dispararPageViewCanonico()
+
+  // 5. Configurar URLs da Kiwify
+  configurarCheckoutKiwify()
+
+  // 6. Listener delegado em fase de captura (true) para links de checkout
+  const handleClickCapture = function (ev: MouseEvent) {
+    try {
+      const target = ev.target as HTMLElement | null
+      const el =
+        target && target.closest
+          ? (target.closest(
+              'a[href*="kiwify"], a[href*="checkout"], button[data-checkout], a[data-checkout]',
+            ) as HTMLElement | null)
+          : null
+      if (!el) return
+
+      if (el.tagName === 'A' && (el as HTMLAnchorElement).href) {
+        ;(el as HTMLAnchorElement).href = enriquecerUrlCheckout((el as HTMLAnchorElement).href)
+      }
+
+      const icUrl = window.location.origin + window.location.pathname
+      if (deveDisparar('InitiateCheckout', icUrl, sessionId)) {
+        const checkoutEventId = 'InitiateCheckout_' + sessionId
+        if (window.CRM && typeof window.CRM.enviar === 'function') {
+          window.CRM.enviar('InitiateCheckout', checkoutEventId, { content_name: 'Checkout' }, true)
+        } else {
+          enviarEventoSPRINT(
+            'InitiateCheckout',
+            checkoutEventId,
+            { content_name: 'Checkout' },
+            true,
+          )
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  document.addEventListener('click', handleClickCapture, true)
+
+  // 7. Evento canônico ContentRead ao rolar até 85% do conteúdo
+  let contentReadSent = false
+  const handleScroll = function () {
+    if (contentReadSent) return
+    try {
+      const scrollPercent =
+        (window.scrollY + window.innerHeight) / (document.documentElement.scrollHeight || 1)
+      if (scrollPercent >= 0.85) {
+        const crUrl = window.location.origin + window.location.pathname
+        if (deveDisparar('ContentRead', crUrl, sessionId)) {
+          contentReadSent = true
+          const readEventId = 'ContentRead_' + sessionId + '_' + hashCurto(crUrl)
+          if (window.CRM && typeof window.CRM.enviar === 'function') {
+            window.CRM.enviar('ContentRead', readEventId, {})
+          } else {
+            enviarEventoSPRINT('ContentRead', readEventId, {})
+          }
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll, { passive: true })
+
+  return () => {
+    document.removeEventListener('click', handleClickCapture, true)
+    window.removeEventListener('scroll', handleScroll)
+  }
+}
+
+/**
+ * Snippet da página /obrigado (Purchase 100% server-side — NUNCA fbq('track','Purchase') no navegador)
+ */
+export function dispararPurchaseSPRINT(customValor?: number): void {
   if (typeof window === 'undefined') return
+
+  // Garante que variáveis globais existam caso não tenham sido definidas
+  if (window.SPRINT_VALOR === undefined) window.SPRINT_VALOR = 47.0
+  if (window.SPRINT_PRODUCT_ID === undefined)
+    window.SPRINT_PRODUCT_ID = 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146'
+
+  const cookies = lerCookies()
   const urlParams = extrairUrlParams()
-  const utms = capturarEPersistirUtms()
-  const cookies = extrairCookiesMeta()
   const userData: Record<string, string> = {}
   if (cookies.fbp) userData.fbp = cookies.fbp
   if (cookies.fbc) userData.fbc = cookies.fbc
+
+  let utms: Record<string, string> = {}
+  try {
+    const salvos = localStorage.getItem('sprint_utms')
+    if (salvos) utms = JSON.parse(salvos) || {}
+  } catch {
+    /* ignore */
+  }
 
   const fbclid = urlParams.get('fbclid') || utms.fbclid || ''
   const campaignParam = urlParams.get('utm_campaign') || utms.utm_campaign || ''
@@ -429,9 +585,16 @@ export function dispararPurchaseSPRINT(customValor?: number) {
   const adsetName =
     rawAdsetNameParam ||
     rawAdNameParam ||
-    (/^\s*d+/i.test(utmTerm) || /^\d+$/.test(utmTerm) ? '' : utmTerm)
-  const docReferrer = document.referrer || ''
-  const isPaid = detectarTrafegoPago(utms)
+    (/^s_\d+/i.test(utmTerm) || /^\d+$/.test(utmTerm) ? '' : utmTerm)
+  const docReferrer = typeof document !== 'undefined' ? document.referrer || '' : ''
+  const isPaid =
+    /cpc|paid|ppc|ads|traffic/i.test(utmMedium) ||
+    Boolean(
+      fbclid ||
+      adId ||
+      adsetId ||
+      /(.|^)(facebook.com|fb.com|instagram.com|threads.net|messenger.com)/i.test(docReferrer),
+    )
 
   const valorRaw =
     urlParams.get('valor') ||
@@ -443,31 +606,33 @@ export function dispararPurchaseSPRINT(customValor?: number) {
   }
   const productIdSnippet =
     urlParams.get('product_id') ||
-    (window.SPRINT_PRODUCT_ID !== undefined ? window.SPRINT_PRODUCT_ID : SPRINT_PRODUCT_ID)
+    (window.SPRINT_PRODUCT_ID !== undefined
+      ? window.SPRINT_PRODUCT_ID
+      : 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146')
 
-  // Prioridade 1: session_id vindo da URL
-  // Prioridade 2: localStorage ('metodoplana_session_id')
-  // Prioridade 3: fallback legado ('sprint_session_id')
+  // Sessão: (a) URL session_id ou utm_term no formato s_<dígitos>; (b) localStorage 'sprint_instituto-do-sabor_session_id'; (c) legado 'metodoplana_session_id'; (d) legado 'sprint_session_id'
   const rawSessionParam = urlParams.get('session_id') || ''
   const rawUtmTerm = urlParams.get('utm_term') || ''
   let sessionId = rawSessionParam || (/^s_\d+/i.test(rawUtmTerm) ? rawUtmTerm : '')
   if (!sessionId) {
     try {
       sessionId =
-        localStorage.getItem(SESSION_KEY) || localStorage.getItem('sprint_session_id') || ''
+        localStorage.getItem('sprint_instituto-do-sabor_session_id') ||
+        localStorage.getItem('metodoplana_session_id') ||
+        localStorage.getItem('sprint_session_id') ||
+        ''
     } catch {
       /* ignore */
     }
   }
 
-  // Regra v0.0.44: Se não houver session_id, NÃO dispara compra client-side
+  // Sem session_id: NÃO dispara compra (evita duplicidade com webhook Kiwify)
   if (!sessionId) {
     return
   }
 
   const canonicalEventId = sessionId + '_purchase'
 
-  // Guard de 30s
   const guardKey = 'sprint_last_purchase_' + canonicalEventId
   try {
     const lastPurchase = localStorage.getItem(guardKey)
@@ -479,11 +644,11 @@ export function dispararPurchaseSPRINT(customValor?: number) {
     /* ignore */
   }
 
-  fetch(SPRINT_CONVERSOES_ENDPOINT, {
+  fetch('https://aomkmulukjuwsbrlbfgl.supabase.co/functions/v1/conversoes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      negocio_id: SPRINT_NEGOCIO_SLUG,
+      negocio_id: 'instituto-do-sabor',
       session_id: sessionId,
       event_id: canonicalEventId,
       evento: 'Purchase',
@@ -508,7 +673,9 @@ export function dispararPurchaseSPRINT(customValor?: number) {
       user_data: Object.keys(userData).length > 0 ? userData : undefined,
     }),
     keepalive: true,
-  }).catch((e) => {
-    console.warn('Erro envio SPRINT Purchase:', e)
+  }).catch(function (e) {
+    console.error('Erro envio SPRINT Purchase:', e)
   })
 }
+
+export const inicializarRastreamentoObrigado = dispararPurchaseSPRINT

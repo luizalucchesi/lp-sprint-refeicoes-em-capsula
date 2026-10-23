@@ -1,12 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { StickyPurchaseBar } from '@/components/landing/StickyPurchaseBar'
-import {
-  inicializarMetaPixel,
-  dispararPageViewCanonico,
-  obterOuCriarSessionId,
-  capturarEPersistirUtms,
-} from '@/lib/tracking/sprintTracker'
+import { inicializarRastreamentoLanding } from '@/lib/tracking/sprintTracker'
 
 // Lazy loading das seções abaixo da dobra para otimizar o carregamento móvel
 const SecaoChegandoDoTrabalho = React.lazy(() =>
@@ -48,11 +43,9 @@ const Footer = React.lazy(() =>
 
 export default function Index() {
   useEffect(() => {
-    // Inicialização do Meta Pixel e captura de UTMs + session_id SPRINT
-    obterOuCriarSessionId()
-    capturarEPersistirUtms()
-    inicializarMetaPixel()
-    dispararPageViewCanonico()
+    // Inicialização do Meta Pixel e captura de UTMs + session_id SPRINT (ref 59168)
+    const cleanup = inicializarRastreamentoLanding()
+    return cleanup
   }, [])
 
   return (
