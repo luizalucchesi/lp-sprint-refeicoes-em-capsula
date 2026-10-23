@@ -4,8 +4,12 @@ import path from 'node:path'
 const TARGET_RULES = [
   {
     pattern:
-      /(imagemgerada1792508738349-46e0f|captura-de-tela-2026-10-22-212702-17d92|captura-de-tela-2026-10-22-212743-01306|03-d8f89)/i,
+      /(imagemgerada1792508738349-46e0f|captura-de-tela-2026-10-22-212702-17d92|captura-de-tela-2026-10-22-212743-01306|03-d8f89|1-7e94d|2-ec1a1)/i,
     maxWidth: 960,
+  },
+  {
+    pattern: /(screenshot-2026-10-23-112444-c8077|manual-do-freezer)/i,
+    maxWidth: 1200,
   },
   {
     pattern: /luiza-[123]-/i,

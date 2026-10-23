@@ -2,8 +2,7 @@ import React from 'react'
 import { CtaButton } from './CtaButton'
 import { ChevronDown, Clock } from 'lucide-react'
 
-// Imagem conceitual de cozinha real (panela no fogo, luz natural de janela, bancada de madeira)
-const HERO_IMAGE_URL = 'https://img.usecurling.com/p/600/600?q=cooking%20chicken%20pot&color=orange'
+import heroPanelaFrango from '@/assets/1-7e94d.jpg'
 
 export const HeroSection: React.FC = () => {
   return (
@@ -53,8 +52,8 @@ export const HeroSection: React.FC = () => {
               {/* Moldura com efeito polaroid de cozinha real */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-cream-50 bg-cream-100 transform rotate-1 hover:rotate-0 transition-transform duration-500">
                 <img
-                  src={HERO_IMAGE_URL}
-                  alt="Preparo de base na panela em cozinha com luz natural"
+                  src={heroPanelaFrango}
+                  alt="Preparo de base de frango desfiado na panela terracota com colher de pau"
                   className="w-full h-80 sm:h-96 object-cover"
                   loading="eager"
                   decoding="async"

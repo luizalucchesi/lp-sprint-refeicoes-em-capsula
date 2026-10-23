@@ -8,6 +8,7 @@ import {
   capaOcasioesEspeciais,
   planilhaMestraBonus2,
   tabelaMacrosBonus3,
+  bannerManualDoFreezer,
 } from '@/assets/mockupImages'
 
 export const SecaoOs4Bonus: React.FC = () => {
@@ -20,8 +21,23 @@ export const SecaoOs4Bonus: React.FC = () => {
       accentColor: 'border-t-ice bg-ice/10',
       tagColor: 'text-forest bg-ice/40 border-ice',
       icon: Snowflake,
-      coverData: EBOOK_COVERS.manualDoFreezer,
-      customCover: <ManualDoFreezerCover />,
+      coverData: {
+        ...EBOOK_COVERS.manualDoFreezer,
+        imageUrl: bannerManualDoFreezer,
+      },
+      customCover: (
+        <div className="relative h-full w-full bg-[#FAF6EE] overflow-hidden flex flex-col justify-center items-center">
+          <img
+            src={bannerManualDoFreezer}
+            alt="Manual do Freezer: Como as 24 bases cabem no seu congelador"
+            loading="lazy"
+            decoding="async"
+            width={800}
+            height={450}
+            className="w-full h-full object-cover select-none"
+          />
+        </div>
+      ),
       rotate: 'left' as const,
       copy: 'Como as 24 bases cabem no seu congelador: 4 jeitos de guardar, sendo sacos achatados com vincos, formas e doses, potes empilháveis e bandeja de pré-congelamento, mais o sistema de etiquetas e o arquivo vertical que organiza tudo por categoria.',
     },

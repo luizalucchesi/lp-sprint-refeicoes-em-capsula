@@ -2,11 +2,7 @@ import React from 'react'
 import { BookOpen, Layers, Utensils, Gift, Check, Sparkles, Smartphone } from 'lucide-react'
 import { PhoneMockup } from './mockups/PhoneMockup'
 import { FichaMontagemPhoneScreen } from './mockups/FichaMontagemPhoneScreen'
-import { fichasMontagem } from '@/assets/mockupImages'
-
-// Flat-lay de sacos de freezer etiquetados sobre bancada rústica
-const FLATLAY_IMAGE_URL =
-  'https://img.usecurling.com/p/600/450?q=freezer%20bags%20labeled%20kitchen%20counter&color=orange'
+import { fichasMontagem, bannerManualDoFreezer } from '@/assets/mockupImages'
 
 export const SecaoOQueVoceRecebe: React.FC = () => {
   return (
@@ -176,15 +172,15 @@ export const SecaoOQueVoceRecebe: React.FC = () => {
             </div>
 
             <div className="lg:col-span-4 flex justify-center">
-              <div className="rounded-2xl overflow-hidden border-2 border-cream/30 shadow-2xl max-w-xs w-full">
+              <div className="rounded-2xl overflow-hidden border-2 border-cream/30 shadow-2xl max-w-md w-full aspect-[4/3] bg-cream-100 flex items-center justify-center">
                 <img
-                  src={FLATLAY_IMAGE_URL}
-                  alt="Flat-lay com sacos de freezer e fichas de receitas do guia"
-                  className="w-full h-48 object-cover"
+                  src={bannerManualDoFreezer}
+                  alt="Manual do Freezer: Como as 24 bases cabem no seu congelador"
+                  className="w-full h-full object-cover"
                   loading="lazy"
                   decoding="async"
-                  width={600}
-                  height={450}
+                  width={800}
+                  height={600}
                 />
               </div>
             </div>

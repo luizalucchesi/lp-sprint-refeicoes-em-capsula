@@ -1,9 +1,7 @@
 import React from 'react'
 import { ShoppingBag, UtensilsCrossed } from 'lucide-react'
 
-// Imagem sutil de geladeira real / tomate na gaveta / comida de delivery
-const FRIDGE_IMAGE_URL =
-  'https://img.usecurling.com/p/600/600?q=open%20refrigerator%20vegetables&color=orange'
+import geladeiraGavetaLegumes from '@/assets/2-ec1a1.jpg'
 
 export const SecaoChegandoDoTrabalho: React.FC = () => {
   return (
@@ -19,8 +17,8 @@ export const SecaoChegandoDoTrabalho: React.FC = () => {
             {/* Imagem contextual da geladeira real */}
             <div className="mt-4 rounded-2xl overflow-hidden border border-caramel/20 shadow-md">
               <img
-                src={FRIDGE_IMAGE_URL}
-                alt="Geladeira aberta com legumes na gaveta"
+                src={geladeiraGavetaLegumes}
+                alt="Geladeira e gaveta aberta cheia de legumes frescos e potes"
                 className="w-full h-48 sm:h-56 object-cover"
                 loading="lazy"
                 decoding="async"

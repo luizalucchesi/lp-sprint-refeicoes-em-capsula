@@ -2,3 +2,6 @@ export { default as capaOcasioesEspeciais } from './imagemgerada1792508738349-46
 export { default as fichasMontagem } from './03-d8f89.png'
 export { default as planilhaMestraBonus2 } from './captura-de-tela-2026-10-22-212702-17d92.png'
 export { default as tabelaMacrosBonus3 } from './captura-de-tela-2026-10-22-212743-01306.png'
+export { default as bannerManualDoFreezer } from './screenshot-2026-10-23-112444-c8077.png'
+export { default as heroPanelaFrango } from './1-7e94d.jpg'
+export { default as geladeiraGavetaLegumes } from './2-ec1a1.jpg'

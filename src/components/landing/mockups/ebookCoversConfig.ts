@@ -28,7 +28,7 @@ export const EBOOK_COVERS: Record<string, EbookCoverData> = {
     badge: 'BÔNUS 01',
     accentColor: '#C9D8DD', // Azul Gelo
     bgGradient: 'from-[#1F3429] via-[#2E4A3B] to-[#1a2d23]',
-    imageUrl: '', // << Substituir pela imagem real da capa quando enviar
+    imageUrl: '',
     iconName: 'snowflake',
   },
   planilhaInteligente: {
