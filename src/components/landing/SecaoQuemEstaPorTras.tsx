@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import fotoAula from '@/assets/luiza-1-7d847.jpg'
 import fotoDrink from '@/assets/luiza-2-521f3.jpg'
@@ -33,10 +33,10 @@ const FOTOS_LUIZA: SlideFoto[] = [
 ]
 
 export const SecaoQuemEstaPorTras: React.FC = () => {
+  // Índice inicial 0 garante que a primeira foto (fotoAula / luiza-1) seja sempre exibida ao carregar
   const [currentIndex, setCurrentIndex] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const [touchEndX, setTouchEndX] = useState<number | null>(null)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % FOTOS_LUIZA.length)
@@ -50,16 +50,7 @@ export const SecaoQuemEstaPorTras: React.FC = () => {
     setCurrentIndex(index)
   }
 
-  // Auto-play suave a cada 6 segundos, pausado ao interagir
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      handleNext()
-    }, 6000)
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [handleNext, currentIndex])
+  // Sem autoplay automático para manter a foto principal de Luiza visível até a usuária interagir
 
   // Swipe em mobile
   const handleTouchStart = (e: React.TouchEvent) => {
