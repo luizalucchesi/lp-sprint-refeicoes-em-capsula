@@ -3,7 +3,7 @@
  * Integrates Meta Pixel (fbq) + Conversions Endpoint (Supabase edge function).
  */
 
-export const META_PIXEL_ID = '123456789012345'
+export const META_PIXEL_ID = '2370355543368387'
 export const META_CONVERSIONS_ENDPOINT =
   'https://aomkmulukjuwsbrlbfgl.supabase.co/functions/v1/conversoes'
 export const KIWIFY_CHECKOUT_URL = 'https://pay.kiwify.com.br/kPUhdIm'

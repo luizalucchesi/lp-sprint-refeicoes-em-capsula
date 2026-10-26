@@ -3,7 +3,7 @@
  */
 
 export const META_PIXEL_ID =
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_META_PIXEL_ID) || '123456789012345'
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_META_PIXEL_ID) || '2370355543368387'
 
 export const KIWIFY_CHECKOUT_URL =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_KIWIFY_CHECKOUT_URL) ||
