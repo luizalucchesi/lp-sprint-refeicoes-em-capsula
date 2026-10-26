@@ -16,6 +16,7 @@ declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void
     _fbq?: unknown
+    _fbqInitialized?: boolean
   }
 }
 
@@ -89,7 +90,7 @@ let pixelInitialized = false
  * Inicializa o Meta Pixel base no <head> com o PIXEL_ID fornecido (executa apenas uma vez).
  */
 export function initMetaPixel(pixelId: string = META_PIXEL_ID): void {
-  if (typeof window === 'undefined' || pixelInitialized) return
+  if (typeof window === 'undefined' || pixelInitialized || window._fbqInitialized) return
 
   if (!window.fbq) {
     /* eslint-disable */
@@ -116,6 +117,7 @@ export function initMetaPixel(pixelId: string = META_PIXEL_ID): void {
     try {
       window.fbq('init', pixelId)
       pixelInitialized = true
+      window._fbqInitialized = true
     } catch {
       /* ignore */
     }
