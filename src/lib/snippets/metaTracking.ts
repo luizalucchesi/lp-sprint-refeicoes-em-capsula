@@ -116,6 +116,7 @@ export function initMetaPixel(pixelId: string = META_PIXEL_ID): void {
   if (window.fbq) {
     try {
       window.fbq('init', pixelId)
+      window.fbq('set', 'autoConfig', false, pixelId)
       pixelInitialized = true
       window._fbqInitialized = true
     } catch {

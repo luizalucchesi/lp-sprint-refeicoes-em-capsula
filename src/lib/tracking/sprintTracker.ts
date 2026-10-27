@@ -250,6 +250,7 @@ export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
   if (window.fbq && !window._fbqInitialized) {
     try {
       window.fbq('init', pixelId)
+      window.fbq('set', 'autoConfig', false, pixelId)
       window._fbqInitialized = true
     } catch (e) {
       console.warn('Falha ao inicializar Meta Pixel:', e)
