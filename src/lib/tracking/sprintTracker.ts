@@ -199,7 +199,13 @@ export function capturarEPersistirUtms(): Record<string, string> {
     const v = urlParams.get(k)
     if (v) utms[k] = v
   })
+
+  // Vincula as UTMs salvas à sessão atual se houver sessão ativa
   try {
+    const sExistente = localStorage.getItem(SESSION_KEY)
+    if (sExistente) {
+      utms._session_id = sExistente
+    }
     localStorage.setItem('sprint_utms', JSON.stringify(utms))
   } catch {
     /* ignore */
@@ -226,6 +232,17 @@ export function obterOuCriarSessionId(): string {
     } else {
       sessionId = 's_' + agora + '_' + Math.random().toString(36).substring(2, 8)
       localStorage.setItem(SESSION_KEY, sessionId)
+      // Nova sessão iniciada: sincroniza a chave de sessão em sprint_utms se existir
+      try {
+        const salvos = localStorage.getItem('sprint_utms')
+        if (salvos) {
+          const parsed = JSON.parse(salvos) || {}
+          parsed._session_id = sessionId
+          localStorage.setItem('sprint_utms', JSON.stringify(parsed))
+        }
+      } catch {
+        /* ignore */
+      }
     }
     localStorage.setItem(SESSION_TS_KEY, agora.toString())
   } catch {
@@ -667,151 +684,205 @@ export function inicializarRastreamentoLanding(): () => void {
 export function dispararPurchaseSPRINT(customValor?: number): void {
   if (typeof window === 'undefined') return
 
-  // Garante que variáveis globais existam caso não tenham sido definidas
-  if (window.SPRINT_VALOR === undefined) window.SPRINT_VALOR = 47.0
-  if (window.SPRINT_PRODUCT_ID === undefined)
-    window.SPRINT_PRODUCT_ID = 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146'
-
-  let utms: Record<string, string> = {}
   try {
-    const salvos = localStorage.getItem('sprint_utms')
-    if (salvos) utms = JSON.parse(salvos) || {}
-  } catch {
-    /* ignore */
-  }
+    // Garante que variáveis globais existam caso não tenham sido definidas
+    if (window.SPRINT_VALOR === undefined) window.SPRINT_VALOR = 47.0
+    if (window.SPRINT_PRODUCT_ID === undefined)
+      window.SPRINT_PRODUCT_ID = 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146'
 
-  const urlParams = extrairUrlParams()
-  const fbclid = urlParams.get('fbclid') || utms.fbclid || ''
+    const urlParams = extrairUrlParams()
+    const agora = Date.now()
 
-  // Garante fallback de _fbc se ausente e fbclid existir
-  if (fbclid) {
-    sincronizarCookieFbc(fbclid)
-  }
+    // 1. Sessão: estritamente válida
+    // Caminho A: URL atual (redirect do checkout) traz session_id ou utm_term com prefixo s_
+    const rawSessionUrl = urlParams.get('session_id') || urlParams.get('sprint_session_id') || ''
+    const rawUtmTermUrl = urlParams.get('utm_term') || ''
+    const sessionFromUrl = rawSessionUrl || (/^s_\d+/i.test(rawUtmTermUrl) ? rawUtmTermUrl : '')
 
-  const cookies = lerCookies()
-  const userData: Record<string, string> = {}
-  if (cookies.fbp) userData.fbp = cookies.fbp
-  if (cookies.fbc) userData.fbc = cookies.fbc
-  const campaignParam = urlParams.get('utm_campaign') || utms.utm_campaign || ''
-  const campaignIdParam =
-    urlParams.get('campaign_id') ||
-    urlParams.get('meta_campaign_id') ||
-    utms.campaign_id ||
-    utms.meta_campaign_id ||
-    ''
-  const rawCampaignNameParam = urlParams.get('campaign_name') || utms.campaign_name || ''
-  const campaignName = rawCampaignNameParam || campaignParam
-  const utmSource = urlParams.get('utm_source') || utms.utm_source || ''
-  const utmMedium = urlParams.get('utm_medium') || utms.utm_medium || ''
-  const utmContent = urlParams.get('utm_content') || utms.utm_content || ''
-  const utmTerm = urlParams.get('utm_term') || utms.utm_term || ''
-  const rawAdsetNameParam = urlParams.get('adset_name') || utms.adset_name || ''
-  const rawAdNameParam = urlParams.get('ad_name') || utms.ad_name || ''
-  const adId = utms.ad_id || (/^\d+$/.test(utmContent) ? utmContent : '')
-  const adName = rawAdNameParam || (/^\d+$/.test(utmContent) ? '' : utmContent)
-  const adsetId = utms.adset_id || (/^\d+$/.test(utmTerm) ? utmTerm : '')
-  const adsetName =
-    rawAdsetNameParam ||
-    rawAdNameParam ||
-    (/^s_\d+/i.test(utmTerm) || /^\d+$/.test(utmTerm) ? '' : utmTerm)
-  const docReferrer = typeof document !== 'undefined' ? document.referrer || '' : ''
-  const isPaid =
-    /cpc|paid|ppc|ads|traffic/i.test(utmMedium) ||
-    Boolean(
-      fbclid ||
-      adId ||
-      adsetId ||
-      /(.|^)(facebook.com|fb.com|instagram.com|threads.net|messenger.com)/i.test(docReferrer),
-    )
-
-  const valorRaw =
-    urlParams.get('valor') ||
-    (window.SPRINT_VALOR !== undefined ? window.SPRINT_VALOR : null) ||
-    customValor
-  let valorFinal = SPRINT_VALOR_REAIS
-  if (valorRaw !== null && valorRaw !== '' && !isNaN(Number(valorRaw))) {
-    valorFinal = Number(valorRaw)
-  }
-  const productIdSnippet =
-    urlParams.get('product_id') ||
-    (window.SPRINT_PRODUCT_ID !== undefined
-      ? window.SPRINT_PRODUCT_ID
-      : 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146')
-
-  // Sessão: (a) URL session_id ou utm_term no formato s_<dígitos>; (b) localStorage 'sprint_instituto-do-sabor_session_id'; (c) legado 'metodoplana_session_id'; (d) legado 'sprint_session_id'
-  const rawSessionParam = urlParams.get('session_id') || ''
-  const rawUtmTerm = urlParams.get('utm_term') || ''
-  let sessionId = rawSessionParam || (/^s_\d+/i.test(rawUtmTerm) ? rawUtmTerm : '')
-  if (!sessionId) {
+    // Caminho B: localStorage com TTL de 30 minutos verificado na LEITURA
+    let sessionFromStorage = ''
     try {
-      sessionId =
-        localStorage.getItem('sprint_instituto-do-sabor_session_id') ||
-        localStorage.getItem('metodoplana_session_id') ||
-        localStorage.getItem('sprint_session_id') ||
-        ''
+      const sExistente =
+        localStorage.getItem(SESSION_KEY) || localStorage.getItem('metodoplana_session_id') || ''
+      const sTs = parseInt(localStorage.getItem(SESSION_TS_KEY) || '0', 10)
+      if (sExistente && sTs && agora - sTs < SESSION_TTL) {
+        sessionFromStorage = sExistente
+      }
     } catch {
       /* ignore */
     }
-  }
 
-  // Sem session_id: NÃO dispara compra (evita duplicidade com webhook Kiwify)
-  if (!sessionId) {
-    return
-  }
+    const sessionId = sessionFromUrl || sessionFromStorage
 
-  // Inclui external_id = session_id no user_data do payload server-side
-  userData.external_id = sessionId
-
-  // Garante Advanced Matching no Pixel também na página de obrigado
-  if (typeof window.fbq === 'function') {
-    configurarMetaAdvancedMatching(sessionId)
-  }
-
-  const canonicalEventId = sessionId + '_purchase'
-
-  const guardKey = 'sprint_last_purchase_' + canonicalEventId
-  try {
-    const lastPurchase = localStorage.getItem(guardKey)
-    if (lastPurchase && Date.now() - parseInt(lastPurchase, 10) < 30000) {
+    // DECISÃO DA USUÁRIA: "é melhor não ir do que ir para o lugar errado".
+    // Sem sessão válida pela URL OU pelo localStorage com TTL de 30 min:
+    // O Purchase NÃO vai à Meta de forma alguma (quarentena para diagnóstico).
+    if (!sessionId) {
+      console.warn('[SPRINT] Purchase não enviado: sem sessão válida — quarentena')
       return
     }
-    localStorage.setItem(guardKey, Date.now().toString())
-  } catch {
-    /* ignore */
-  }
 
-  fetch('https://aomkmulukjuwsbrlbfgl.supabase.co/functions/v1/conversoes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      negocio_id: 'instituto-do-sabor',
-      session_id: sessionId,
-      event_id: canonicalEventId,
-      evento: 'Purchase',
-      valor: valorFinal,
-      valor_estimado: true,
-      moeda: 'BRL',
-      product_id: productIdSnippet || undefined,
-      client_user_agent: navigator.userAgent || undefined,
-      event_time: new Date().toISOString(),
-      event_source_url: window.location.href,
-      referrer: docReferrer || undefined,
-      campaign: campaignName || undefined,
-      campaign_id: campaignIdParam || undefined,
-      campaign_name: rawCampaignNameParam || undefined,
-      fonte: utmSource || undefined,
-      trafego_pago: isPaid,
-      ad_id: adId || undefined,
-      ad_name: adName || undefined,
-      adset_id: adsetId || undefined,
-      adset_name: adsetName || undefined,
-      fbclid: fbclid || undefined,
-      user_data: Object.keys(userData).length > 0 ? userData : undefined,
-    }),
-    keepalive: true,
-  }).catch(function (e) {
-    console.error('Erro envio SPRINT Purchase:', e)
-  })
+    // Se a sessão veio da URL atual, renova o timestamp e a chave canônica no localStorage
+    try {
+      localStorage.setItem(SESSION_KEY, sessionId)
+      localStorage.setItem(SESSION_TS_KEY, agora.toString())
+    } catch {
+      /* ignore */
+    }
+
+    // 2. Atribuição só da sessão atual:
+    // Os parâmetros de atribuição devem vir APENAS da URL atual ou de sprint_utms
+    // pertencentes à MESMA sessão dentro do TTL. Nunca misturar UTMs antigas de outra sessão.
+    let utmsSession: Record<string, string> = {}
+    try {
+      const salvos = localStorage.getItem('sprint_utms')
+      if (salvos) {
+        const parsed = JSON.parse(salvos) || {}
+        // Só aceita se não tiver vinculação ou se estiver explicitamente vinculado à MESMA sessão
+        if (!parsed._session_id || parsed._session_id === sessionId) {
+          utmsSession = parsed
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+
+    const fbclid = urlParams.get('fbclid') || utmsSession.fbclid || ''
+    if (fbclid) {
+      sincronizarCookieFbc(fbclid)
+    }
+
+    const cookies = lerCookies()
+    const userData: Record<string, string> = {}
+    if (cookies.fbp) userData.fbp = cookies.fbp
+    if (cookies.fbc) userData.fbc = cookies.fbc
+    userData.external_id = sessionId
+
+    const campaignParam = urlParams.get('utm_campaign') || utmsSession.utm_campaign || ''
+    const campaignIdParam =
+      urlParams.get('campaign_id') ||
+      urlParams.get('meta_campaign_id') ||
+      utmsSession.campaign_id ||
+      utmsSession.meta_campaign_id ||
+      ''
+    const rawCampaignNameParam = urlParams.get('campaign_name') || utmsSession.campaign_name || ''
+    const campaignName = rawCampaignNameParam || campaignParam
+    const utmSource = urlParams.get('utm_source') || utmsSession.utm_source || ''
+    const utmMedium = urlParams.get('utm_medium') || utmsSession.utm_medium || ''
+    const utmContent = urlParams.get('utm_content') || utmsSession.utm_content || ''
+    const utmTerm = urlParams.get('utm_term') || utmsSession.utm_term || ''
+    const rawAdsetNameParam = urlParams.get('adset_name') || utmsSession.adset_name || ''
+    const rawAdNameParam = urlParams.get('ad_name') || utmsSession.ad_name || ''
+    const adId = utmsSession.ad_id || (/^\d+$/.test(utmContent) ? utmContent : '')
+    const adName = rawAdNameParam || (/^\d+$/.test(utmContent) ? '' : utmContent)
+    const adsetId = utmsSession.adset_id || (/^\d+$/.test(utmTerm) ? utmTerm : '')
+    const adsetName =
+      rawAdsetNameParam ||
+      rawAdNameParam ||
+      (/^s_\d+/i.test(utmTerm) || /^\d+$/.test(utmTerm) ? '' : utmTerm)
+    const docReferrer = typeof document !== 'undefined' ? document.referrer || '' : ''
+    const isPaid =
+      /cpc|paid|ppc|ads|traffic/i.test(utmMedium) ||
+      Boolean(
+        fbclid ||
+        adId ||
+        adsetId ||
+        /(.|^)(facebook.com|fb.com|instagram.com|threads.net|messenger.com)/i.test(docReferrer),
+      )
+
+    const valorRaw =
+      urlParams.get('valor') ||
+      (window.SPRINT_VALOR !== undefined ? window.SPRINT_VALOR : null) ||
+      customValor
+    let valorFinal = SPRINT_VALOR_REAIS
+    if (valorRaw !== null && valorRaw !== '' && !isNaN(Number(valorRaw))) {
+      valorFinal = Number(valorRaw)
+    }
+    const productIdSnippet =
+      urlParams.get('product_id') ||
+      (window.SPRINT_PRODUCT_ID !== undefined
+        ? window.SPRINT_PRODUCT_ID
+        : 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146')
+
+    // Garante Advanced Matching no Pixel também na página de obrigado
+    if (typeof window.fbq === 'function') {
+      configurarMetaAdvancedMatching(sessionId)
+    }
+
+    const canonicalEventId = sessionId + '_purchase'
+
+    // 3. Guard de deduplicação por pedido (permanente), com fallback por session_id (permanente)
+    // Se a URL trouxer identificador de pedido da Kiwify (ex.: order_id, transaction_id, etc.):
+    // um pedido já disparado nunca é reenviado, independente do tempo.
+    // Se não houver pedido na URL, deduplica por session_id (um Purchase por sessão).
+    const orderIdParam =
+      urlParams.get('order_id') ||
+      urlParams.get('orderId') ||
+      urlParams.get('order') ||
+      urlParams.get('transaction_id') ||
+      urlParams.get('transactionId') ||
+      urlParams.get('transacao') ||
+      urlParams.get('kiwify_order_id') ||
+      ''
+
+    let guardKey = ''
+    if (orderIdParam) {
+      guardKey = 'sprint_purchase_order_' + orderIdParam
+    } else {
+      guardKey = 'sprint_purchase_session_' + sessionId
+    }
+
+    const legacyGuardKey = 'sprint_last_purchase_' + canonicalEventId
+
+    try {
+      const alreadySent = localStorage.getItem(guardKey) || localStorage.getItem(legacyGuardKey)
+      if (alreadySent) {
+        console.warn(
+          '[SPRINT] Purchase não reenviado: pedido/sessão já processado (' + guardKey + ')',
+        )
+        return
+      }
+      localStorage.setItem(guardKey, agora.toString())
+      localStorage.setItem(legacyGuardKey, agora.toString())
+    } catch {
+      /* ignore */
+    }
+
+    fetch('https://aomkmulukjuwsbrlbfgl.supabase.co/functions/v1/conversoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        negocio_id: 'instituto-do-sabor',
+        session_id: sessionId,
+        event_id: canonicalEventId,
+        evento: 'Purchase',
+        valor: valorFinal,
+        valor_estimado: true,
+        moeda: 'BRL',
+        product_id: productIdSnippet || undefined,
+        client_user_agent: navigator.userAgent || undefined,
+        event_time: new Date().toISOString(),
+        event_source_url: window.location.href,
+        referrer: docReferrer || undefined,
+        campaign: campaignName || undefined,
+        campaign_id: campaignIdParam || undefined,
+        campaign_name: rawCampaignNameParam || undefined,
+        fonte: utmSource || undefined,
+        trafego_pago: isPaid,
+        ad_id: adId || undefined,
+        ad_name: adName || undefined,
+        adset_id: adsetId || undefined,
+        adset_name: adsetName || undefined,
+        fbclid: fbclid || undefined,
+        user_data: Object.keys(userData).length > 0 ? userData : undefined,
+      }),
+      keepalive: true,
+    }).catch(function (e) {
+      console.error('Erro envio SPRINT Purchase:', e)
+    })
+  } catch (err) {
+    console.warn('Erro defensivo em dispararPurchaseSPRINT:', err)
+  }
 }
 
 export const inicializarRastreamentoObrigado = dispararPurchaseSPRINT
