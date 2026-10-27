@@ -1,7 +1,7 @@
 import React from 'react'
 import { ShoppingBag, UtensilsCrossed } from 'lucide-react'
 
-import geladeiraGavetaLegumes from '@/assets/2-ec1a1.jpg'
+import geladeiraGavetaLegumes from '@/assets/2-ec1a1.webp'
 
 export const SecaoChegandoDoTrabalho: React.FC = () => {
   return (

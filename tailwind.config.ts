@@ -3,10 +3,6 @@ import type { Config } from 'tailwindcss'
 import animatePlugin from 'tailwindcss-animate'
 import typographyPlugin from '@tailwindcss/typography'
 import aspectRatioPlugin from '@tailwindcss/aspect-ratio'
-import { optimizeAssets } from './image-optimizer-postcss.mjs'
-
-// Dispara otimização de imagens quando Tailwind lê a configuração durante o vite build
-await optimizeAssets()
 
 export default {
   darkMode: ['class'],
@@ -32,9 +28,9 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'DM Sans', 'system-ui', 'sans-serif'],
-        serif: ['Fraunces', 'Georgia', 'serif'],
+        serif: ['Fraunces', 'Fraunces-Fallback', 'Georgia', 'serif'],
         mono: ['"IBM Plex Mono"', 'Menlo', 'monospace'],
-        display: ['Fraunces', 'Georgia', 'serif'],
+        display: ['Fraunces', 'Fraunces-Fallback', 'Georgia', 'serif'],
       },
       colors: {
         terracotta: {

@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Fraunces-Fallback';
+  src: local('Georgia');
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+  size-adjust: 104%;
+}
+
 @layer base {
   :root {
     /* Fundo creme dominante e texto verde profundo */

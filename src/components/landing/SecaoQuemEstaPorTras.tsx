@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import fotoAula from '@/assets/luiza-1-7d847.jpg'
-import fotoDrink from '@/assets/luiza-2-521f3.jpg'
-import fotoCozinha from '@/assets/luiza-3-a6c15.jpg'
+import fotoAula from '@/assets/luiza-1-7d847.webp'
+import fotoDrink from '@/assets/luiza-2-521f3.webp'
+import fotoCozinha from '@/assets/luiza-3-a6c15.webp'
 
 interface SlideFoto {
   src: string

@@ -14,7 +14,7 @@ const TARGET_RULES = [
   },
   {
     pattern: /luiza-[123]-/i,
-    maxWidth: 1400,
+    maxWidth: 1200,
   },
 ]
 
@@ -46,7 +46,7 @@ export async function optimizeAssets() {
     const originalSize = fileStat.size
 
     const matchedRule = TARGET_RULES.find((r) => r.pattern.test(fileName))
-    const maxWidth = matchedRule ? matchedRule.maxWidth : 1200
+    const maxWidth = matchedRule ? matchedRule.maxWidth : 1000
 
     try {
       const inputBuffer = fs.readFileSync(filePath)
@@ -61,8 +61,8 @@ export async function optimizeAssets() {
         })
       }
 
-      // Converter para WebP mantendo < 200KB com passos adaptativos de qualidade (80 -> 70 -> 60)
-      const qualitySteps = [80, 70, 60]
+      // Converter para WebP mantendo < 200KB com passos adaptativos de qualidade e resolução
+      const qualitySteps = [80, 70, 60, 50, 40]
       let bestWebpBuffer = null
 
       for (const quality of qualitySteps) {
@@ -80,13 +80,31 @@ export async function optimizeAssets() {
         }
       }
 
+      // Se ainda exceder 200KB, reduz proporcionalmente as dimensões
+      if (bestWebpBuffer && bestWebpBuffer.length > 200 * 1024) {
+        for (const targetWidth of [800, 640]) {
+          const candidate = await sharp(inputBuffer)
+            .resize({
+              width: targetWidth,
+              withoutEnlargement: true,
+              fit: 'inside',
+            })
+            .webp({
+              quality: 65,
+              effort: 5,
+            })
+            .toBuffer()
+
+          bestWebpBuffer = candidate
+          if (candidate.length <= 200 * 1024) {
+            break
+          }
+        }
+      }
+
       if (bestWebpBuffer) {
         const webpPath = filePath.replace(/\.(jpe?g|png)$/i, '.webp')
         fs.writeFileSync(webpPath, bestWebpBuffer)
-
-        if (bestWebpBuffer.length < originalSize) {
-          fs.writeFileSync(filePath, bestWebpBuffer)
-        }
 
         console.log(
           `[optimize-images] ${fileName}: ${(originalSize / 1024).toFixed(1)}KB -> ${(bestWebpBuffer.length / 1024).toFixed(1)}KB (.webp gerado)`,
@@ -101,7 +119,7 @@ export async function optimizeAssets() {
 export default function imageOptimizerPostcssPlugin() {
   return {
     postcssPlugin: 'image-optimizer-postcss-plugin',
-    async Once(root) {
+    async Once() {
       await optimizeAssets()
     },
     async prepare() {

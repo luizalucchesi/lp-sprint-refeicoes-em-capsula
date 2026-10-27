@@ -2,7 +2,7 @@ import React from 'react'
 import { CtaButton } from './CtaButton'
 import { ChevronDown, Clock } from 'lucide-react'
 
-import heroPanelaFrango from '@/assets/1-7e94d.jpg'
+import heroPanelaFrango from '@/assets/1-7e94d.webp'
 
 export const HeroSection: React.FC = () => {
   return (
