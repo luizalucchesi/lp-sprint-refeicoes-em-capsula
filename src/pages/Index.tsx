@@ -56,40 +56,54 @@ export default function Index() {
       {/* 1. Hero Section: Headline, promessa, CTA primário e cena núcleo (carregada imediatamente) */}
       <HeroSection />
 
-      {/* Seções abaixo da dobra com Suspense seguro para transição suave */}
-      <Suspense
-        fallback={
-          <div className="py-12 bg-cream text-center opacity-40 font-mono text-xs">...</div>
-        }
-      >
-        {/* 2. Dores: Chegando do trabalho, geladeira cheia, fadiga de decisão */}
+      {/* Seções abaixo da dobra: cada seção possui seu próprio Suspense com min-height neutro (sem layout shift - CLS 0) */}
+      {/* 2. Dores: Chegando do trabalho, geladeira cheia, fadiga de decisão */}
+      <Suspense fallback={<div className="min-h-[480px] bg-cream-50/70" aria-hidden="true" />}>
         <SecaoChegandoDoTrabalho />
+      </Suspense>
 
-        {/* 3. A Virada de Chave: Os 3 Passos (Prepara, Congela, Monta) + Frango & Feijão */}
+      {/* 3. A Virada de Chave: Os 3 Passos + Frango & Feijão + Ilustração Freezer */}
+      <Suspense fallback={<div className="min-h-[680px] bg-forest" aria-hidden="true" />}>
         <SecaoAVirada />
+      </Suspense>
 
-        {/* 4. O que muda na sua semana: Tempo, Dinheiro, Repertório, Sem monotonia */}
+      {/* 4. O que muda na sua semana: Tempo, Dinheiro, Repertório, Sem monotonia */}
+      <Suspense fallback={<div className="min-h-[460px] bg-cream-50/60" aria-hidden="true" />}>
         <SecaoOQueMuda />
+      </Suspense>
 
-        {/* 5. O que você recebe: 24 bases, 229 fichas, 5 grupos de sustento */}
+      {/* 5. O que você recebe: 24 bases, 229 fichas, 5 grupos de sustento */}
+      <Suspense fallback={<div className="min-h-[780px] bg-cream" aria-hidden="true" />}>
         <SecaoOQueVoceRecebe />
+      </Suspense>
 
-        {/* 6. Os 4 Bônus exclusivos da página com valores riscados */}
+      {/* 6. Os 4 Bônus exclusivos da página com valores riscados */}
+      <Suspense fallback={<div className="min-h-[640px] bg-cream" aria-hidden="true" />}>
         <SecaoOs4Bonus />
+      </Suspense>
 
-        {/* 7. Quem está por trás do método: Chef Luiza, trajetória Michelin e carrossel de fotos */}
+      {/* 7. Quem está por trás do método: Chef Luiza */}
+      <Suspense fallback={<div className="min-h-[620px] bg-[#FBF7F0]" aria-hidden="true" />}>
         <SecaoQuemEstaPorTras />
+      </Suspense>
 
-        {/* 8. Tabela de Preço completa: De R$157 por R$47 */}
+      {/* 8. Tabela de Preço completa: De R$157 por R$47 */}
+      <Suspense fallback={<div className="min-h-[600px] bg-cream-50/70" aria-hidden="true" />}>
         <SecaoPreco />
+      </Suspense>
 
-        {/* 9. Garantia incondicional de 7 dias com risco zero */}
+      {/* 9. Garantia incondicional de 7 dias com risco zero */}
+      <Suspense fallback={<div className="min-h-[380px] bg-cream" aria-hidden="true" />}>
         <SecaoGarantia />
+      </Suspense>
 
-        {/* 10. FAQ com respostas do documento */}
+      {/* 10. FAQ com respostas do documento */}
+      <Suspense fallback={<div className="min-h-[640px] bg-cream" aria-hidden="true" />}>
         <SecaoFaq />
+      </Suspense>
 
-        {/* 11. Rodapé institucional com avisos e links */}
+      {/* 11. Rodapé institucional com avisos e links */}
+      <Suspense fallback={<div className="min-h-[220px] bg-forest-dark" aria-hidden="true" />}>
         <Footer />
       </Suspense>
     </div>

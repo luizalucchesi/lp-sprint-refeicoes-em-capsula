@@ -50,7 +50,7 @@ export const HeroSection: React.FC = () => {
           <div className="lg:col-span-5 flex flex-col items-center justify-center">
             <div className="relative w-full max-w-md lg:max-w-none">
               {/* Moldura com efeito polaroid de cozinha real */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-cream-50 bg-cream-100 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-cream-50 bg-cream-100 transform rotate-1 hover:rotate-0 transition-transform duration-500 aspect-square sm:aspect-auto">
                 <img
                   src={heroPanelaFrango}
                   alt="Preparo de base de frango desfiado na panela terracota com colher de pau"
