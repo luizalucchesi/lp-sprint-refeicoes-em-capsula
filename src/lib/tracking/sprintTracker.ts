@@ -276,13 +276,16 @@ export function deveDisparar(tipo: string, urlNorm: string, customSessionId?: st
 // Helper para registrar external_id no Advanced Matching da Meta de forma segura e canônica
 export function configurarMetaAdvancedMatching(sessionId: string, pixelId = META_PIXEL_ID): void {
   if (typeof window === 'undefined' || !sessionId) return
+  const cleanPixelId = String(pixelId)
+    .replace(/^['"]+|['"]+$/g, '')
+    .trim()
   if (typeof window.fbq === 'function') {
     try {
       // 1. Mecanismo canônico da Meta: fbq('init', pixelId, { external_id })
       // Re-chamar init com user data atualiza a instância sem recarregar o script
-      window.fbq('init', pixelId, { external_id: sessionId })
+      window.fbq('init', cleanPixelId, { external_id: sessionId })
       // 2. Mecanismo complementar suportado pela runtime do pixel
-      window.fbq('set', 'userData', { external_id: sessionId }, pixelId)
+      window.fbq('set', 'userData', { external_id: sessionId }, cleanPixelId)
     } catch (e) {
       console.warn('Falha ao configurar external_id no Meta Pixel:', e)
     }
@@ -292,6 +295,9 @@ export function configurarMetaAdvancedMatching(sessionId: string, pixelId = META
 // Inicializador Meta Pixel base (idempotente - complementa o snippet estático do <head>)
 export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
   if (typeof window === 'undefined') return
+  const cleanPixelId = String(pixelId)
+    .replace(/^['"]+|['"]+$/g, '')
+    .trim()
   if (!window.fbq) {
     /* eslint-disable */
     ;(function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
@@ -318,16 +324,16 @@ export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
   // Se o fbq foi recém-criado dinamicamente e ainda não foi inicializado com o pixelId
   if (window.fbq && !window._fbqInitialized) {
     try {
-      window.fbq('init', pixelId, { external_id: sessionId })
-      window.fbq('set', 'autoConfig', false, pixelId)
-      window.fbq('set', 'userData', { external_id: sessionId }, pixelId)
+      window.fbq('init', cleanPixelId, { external_id: sessionId })
+      window.fbq('set', 'autoConfig', false, cleanPixelId)
+      window.fbq('set', 'userData', { external_id: sessionId }, cleanPixelId)
       window._fbqInitialized = true
     } catch (e) {
       console.warn('Falha ao inicializar Meta Pixel:', e)
     }
   } else if (window.fbq) {
     // Pixel já criado (pelo head do index.html): registra Advanced Matching com external_id
-    configurarMetaAdvancedMatching(sessionId, pixelId)
+    configurarMetaAdvancedMatching(sessionId, cleanPixelId)
   }
 }
 

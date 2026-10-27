@@ -1,11 +1,18 @@
 /* Main App Component - Handles routing (using react-router-dom), query client and other providers - use this file to add all routes */
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Toaster } from '@/components/ui/toaster'
-import { Toaster as Sonner } from '@/components/ui/sonner'
-import { TooltipProvider } from '@/components/ui/tooltip'
 import React, { Suspense } from 'react'
 import Index from './pages/Index'
 import Layout from './components/Layout'
+
+const Toaster = React.lazy(() =>
+  import('@/components/ui/toaster').then((m) => ({ default: m.Toaster })),
+)
+const Sonner = React.lazy(() =>
+  import('@/components/ui/sonner').then((m) => ({ default: m.Toaster })),
+)
+const TooltipProvider = React.lazy(() =>
+  import('@/components/ui/tooltip').then((m) => ({ default: m.TooltipProvider })),
+)
 
 const Obrigado = React.lazy(() => import('./pages/Obrigado'))
 const PoliticaPrivacidade = React.lazy(() => import('./pages/PoliticaPrivacidade'))
@@ -20,21 +27,23 @@ const RouteFallback = () => (
 
 const App = () => (
   <BrowserRouter>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Suspense fallback={<RouteFallback />}>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/obrigado" element={<Obrigado />} />
-            <Route path="/privacidade" element={<PoliticaPrivacidade />} />
-            <Route path="/exclusao-de-dados" element={<ExclusaoDeDados />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-    </TooltipProvider>
+    <Suspense fallback={null}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
+    </Suspense>
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Index />} />
+          <Route path="/obrigado" element={<Obrigado />} />
+          <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+          <Route path="/exclusao-de-dados" element={<ExclusaoDeDados />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   </BrowserRouter>
 )
 

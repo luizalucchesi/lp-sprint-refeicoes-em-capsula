@@ -2,8 +2,13 @@
  * Constantes de Configuração do Funil de Vendas e Rastreamento Meta / SPRINT (ref 59168).
  */
 
-export const META_PIXEL_ID =
+// Normaliza o pixel ID garantindo ausência de aspas literais acidentais
+const rawPixelId =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_META_PIXEL_ID) || '2370355543368387'
+export const META_PIXEL_ID =
+  String(rawPixelId)
+    .replace(/^['"]+|['"]+$/g, '')
+    .trim() || '2370355543368387'
 
 export const KIWIFY_CHECKOUT_URL =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_KIWIFY_CHECKOUT_URL) ||

@@ -2,7 +2,8 @@ import React from 'react'
 import { CtaButton } from './CtaButton'
 import { ChevronDown, Clock } from 'lucide-react'
 
-import heroPanelaFrango from '@/assets/1-7e94d.webp'
+// Usamos /hero-panela-frango.webp diretamente para casar com o <link rel="preload" as="image"> do index.html
+const heroPanelaFrangoUrl = '/hero-panela-frango.webp'
 
 export const HeroSection: React.FC = () => {
   return (
@@ -52,7 +53,7 @@ export const HeroSection: React.FC = () => {
               {/* Moldura com efeito polaroid de cozinha real */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-cream-50 bg-cream-100 transform rotate-1 hover:rotate-0 transition-transform duration-500 aspect-square sm:aspect-auto">
                 <img
-                  src={heroPanelaFrango}
+                  src={heroPanelaFrangoUrl}
                   alt="Preparo de base de frango desfiado na panela terracota com colher de pau"
                   className="w-full h-80 sm:h-96 object-cover"
                   loading="eager"

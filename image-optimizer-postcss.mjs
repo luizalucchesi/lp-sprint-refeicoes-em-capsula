@@ -116,14 +116,28 @@ export async function optimizeAssets() {
   }
 }
 
+export async function syncPublicHeroAsset() {
+  const assetsDir = path.resolve(process.cwd(), 'src/assets')
+  const heroSrc = path.join(assetsDir, '1-7e94d.webp')
+  const publicDir = path.resolve(process.cwd(), 'public')
+  const publicDest = path.join(publicDir, 'hero-panela-frango.webp')
+
+  if (fs.existsSync(heroSrc)) {
+    fs.copyFileSync(heroSrc, publicDest)
+    console.log('[optimize-images] Sincronizado public/hero-panela-frango.webp para LCP imediato')
+  }
+}
+
 export default function imageOptimizerPostcssPlugin() {
   return {
     postcssPlugin: 'image-optimizer-postcss-plugin',
     async Once() {
       await optimizeAssets()
+      await syncPublicHeroAsset()
     },
     async prepare() {
       await optimizeAssets()
+      await syncPublicHeroAsset()
       return {}
     },
   }

@@ -4,20 +4,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Conexões antecipadas para origens críticas em runtime -->
+    <!-- Conexões antecipadas para origens críticas em runtime (exatamente 4 preconnects úteis) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
     <link rel="dns-prefetch" href="https://connect.facebook.net" />
     <link rel="preconnect" href="https://aomkmulukjuwsbrlbfgl.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://aomkmulukjuwsbrlbfgl.supabase.co" />
-    <link rel="preconnect" href="https://beacon-analytics-system-68a34.shrd00.internal.goskip.dev" />
 
-    <!-- Preload do CSS das fontes do Google com font-display: swap -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <!-- Preload da imagem hero de maior impacto (LCP) com fetchpriority="high" -->
+    <link rel="preload" as="image" href="/hero-panela-frango.webp" fetchpriority="high" type="image/webp" />
+
+    <!-- Preload das 2 fontes woff2 críticas da dobra (Latin) para pintar títulos e corpo sem atraso -->
+    <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/fraunces/v38/6NUu8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7iQcIfJD58njU0oc7qv8.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" crossorigin />
+
+    <!-- Desvincula a folha de estilo compilada do CSS para não bloquear a renderização inicial (CSS crítico já inlined no build) -->
+    <script>
+      (function(){
+        try {
+          var observer = new MutationObserver(function(mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+              var nodes = mutations[i].addedNodes;
+              for (var j = 0; j < nodes.length; j++) {
+                var n = nodes[j];
+                if (n.nodeName === 'LINK' && n.rel === 'stylesheet' && n.href && n.href.indexOf('/assets/index-') !== -1) {
+                  n.media = 'print';
+                  n.onload = function() { this.media = 'all'; };
+                }
+              }
+            }
+          });
+          observer.observe(document.documentElement, { childList: true, subtree: true });
+        } catch(e) {}
+      })();
+    </script>
+
+    <!-- Google Fonts com pesos e famílias reais (Fraunces 700 + Inter 400..700 + IBM Plex Mono 500..700) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     </noscript>
     <title>Refeições em Cápsula • Instituto do Sabor</title>
     <meta name="description" content="O método Refeições em Cápsula organiza seu freezer em 24 bases que se combinam em mais de 200 pratos. Jantar pronto em 5 a 15 minutos." />
@@ -58,6 +85,7 @@
       />
     </noscript>
     <!-- End Meta Pixel Code -->
+
   </head>
 
   <body>
