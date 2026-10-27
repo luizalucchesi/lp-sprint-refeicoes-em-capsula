@@ -285,7 +285,7 @@ export function configurarMetaAdvancedMatching(sessionId: string, pixelId = META
       // Re-chamar init com user data atualiza a instância sem recarregar o script
       window.fbq('init', cleanPixelId, { external_id: sessionId })
       // 2. Mecanismo complementar suportado pela runtime do pixel
-      window.fbq('set', 'userData', { external_id: sessionId }, cleanPixelId)
+      window.fbq('set', 'userData', { external_id: sessionId })
     } catch (e) {
       console.warn('Falha ao configurar external_id no Meta Pixel:', e)
     }
@@ -326,7 +326,7 @@ export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
     try {
       window.fbq('init', cleanPixelId, { external_id: sessionId })
       window.fbq('set', 'autoConfig', false, cleanPixelId)
-      window.fbq('set', 'userData', { external_id: sessionId }, cleanPixelId)
+      window.fbq('set', 'userData', { external_id: sessionId })
       window._fbqInitialized = true
     } catch (e) {
       console.warn('Falha ao inicializar Meta Pixel:', e)
