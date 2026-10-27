@@ -26,8 +26,23 @@
       t.src=v;s=b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '2370355543368387');
-      fbq('set', 'autoConfig', false, '2370355543368387');
+      (function(){
+        try {
+          var sKey = 'sprint_instituto-do-sabor_session_id';
+          var sTsKey = 'sprint_instituto-do-sabor_session_ts';
+          var ttl = 30 * 60 * 1000;
+          var now = Date.now();
+          var existing = localStorage.getItem(sKey);
+          var ts = parseInt(localStorage.getItem(sTsKey) || '0', 10);
+          if (existing && ts && (now - ts) < ttl) {
+            fbq('init', '2370355543368387', { external_id: existing });
+            fbq('set', 'autoConfig', false, '2370355543368387');
+            return;
+          }
+        } catch (e) {}
+        fbq('init', '2370355543368387');
+        fbq('set', 'autoConfig', false, '2370355543368387');
+      })();
     </script>
     <noscript>
       <img height="1" width="1" style="display:none"

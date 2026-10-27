@@ -139,6 +139,51 @@ export const utmKeys = [
   'campaign_name',
 ]
 
+/**
+ * Fallback canônico de cookie _fbc da Meta:
+ * Quando fbclid estiver presente (na URL ou sprint_utms) e o cookie _fbc não existir,
+ * grava _fbc = fb.1.<timestamp_em_segundos>.<fbclid> com path=/, max-age 90 dias, SameSite=Lax.
+ */
+export function sincronizarCookieFbc(fbclidParam?: string): string | undefined {
+  if (typeof document === 'undefined') return undefined
+  try {
+    const cookiesAtuais = lerCookies()
+    if (cookiesAtuais.fbc) {
+      return cookiesAtuais.fbc
+    }
+
+    let fbclid = fbclidParam
+    if (!fbclid && typeof window !== 'undefined') {
+      const urlParams = extrairUrlParams()
+      fbclid = urlParams.get('fbclid') || ''
+    }
+    if (!fbclid && typeof localStorage !== 'undefined') {
+      try {
+        const salvos = localStorage.getItem('sprint_utms')
+        if (salvos) {
+          const parsed = JSON.parse(salvos)
+          fbclid = parsed?.fbclid || ''
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    if (fbclid) {
+      const timestampSegundos = Math.floor(Date.now() / 1000)
+      const novoFbc = `fb.1.${timestampSegundos}.${fbclid}`
+      const maxAgeSegundos = 90 * 24 * 60 * 60 // ~90 dias (7.776.000s)
+      const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:'
+      const cookieStr = `_fbc=${encodeURIComponent(novoFbc)}; path=/; max-age=${maxAgeSegundos}; SameSite=Lax${isHttps ? '; Secure' : ''}`
+      document.cookie = cookieStr
+      return novoFbc
+    }
+  } catch {
+    /* ignore */
+  }
+  return undefined
+}
+
 export function capturarEPersistirUtms(): Record<string, string> {
   if (typeof window === 'undefined') return {}
   const urlParams = extrairUrlParams()
@@ -159,6 +204,12 @@ export function capturarEPersistirUtms(): Record<string, string> {
   } catch {
     /* ignore */
   }
+
+  // Se houver fbclid (URL ou localStorage) e _fbc não existir, sincroniza fallback
+  if (utms.fbclid) {
+    sincronizarCookieFbc(utms.fbclid)
+  }
+
   return utms
 }
 
@@ -222,6 +273,22 @@ export function deveDisparar(tipo: string, urlNorm: string, customSessionId?: st
   }
 }
 
+// Helper para registrar external_id no Advanced Matching da Meta de forma segura e canônica
+export function configurarMetaAdvancedMatching(sessionId: string, pixelId = META_PIXEL_ID): void {
+  if (typeof window === 'undefined' || !sessionId) return
+  if (typeof window.fbq === 'function') {
+    try {
+      // 1. Mecanismo canônico da Meta: fbq('init', pixelId, { external_id })
+      // Re-chamar init com user data atualiza a instância sem recarregar o script
+      window.fbq('init', pixelId, { external_id: sessionId })
+      // 2. Mecanismo complementar suportado pela runtime do pixel
+      window.fbq('set', 'userData', { external_id: sessionId }, pixelId)
+    } catch (e) {
+      console.warn('Falha ao configurar external_id no Meta Pixel:', e)
+    }
+  }
+}
+
 // Inicializador Meta Pixel base (idempotente - complementa o snippet estático do <head>)
 export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
   if (typeof window === 'undefined') return
@@ -246,15 +313,21 @@ export function inicializarMetaPixel(pixelId = META_PIXEL_ID) {
     /* eslint-enable */
   }
 
+  const sessionId = obterOuCriarSessionId()
+
   // Se o fbq foi recém-criado dinamicamente e ainda não foi inicializado com o pixelId
   if (window.fbq && !window._fbqInitialized) {
     try {
-      window.fbq('init', pixelId)
+      window.fbq('init', pixelId, { external_id: sessionId })
       window.fbq('set', 'autoConfig', false, pixelId)
+      window.fbq('set', 'userData', { external_id: sessionId }, pixelId)
       window._fbqInitialized = true
     } catch (e) {
       console.warn('Falha ao inicializar Meta Pixel:', e)
     }
+  } else if (window.fbq) {
+    // Pixel já criado (pelo head do index.html): registra Advanced Matching com external_id
+    configurarMetaAdvancedMatching(sessionId, pixelId)
   }
 }
 
@@ -269,13 +342,19 @@ export function enviarEventoSPRINT(
   const sessionId = obterOuCriarSessionId()
   const utms = capturarEPersistirUtms()
   const urlParams = extrairUrlParams()
+  const fbclid = utms.fbclid || urlParams.get('fbclid') || ''
+
+  // Garante fallback de _fbc caso ausente e fbclid exista
+  if (fbclid) {
+    sincronizarCookieFbc(fbclid)
+  }
+
   const urlAtual = window.location.href
   const cookiesAtuais = lerCookies()
   const userData: Record<string, string> = {}
   if (cookiesAtuais.fbp) userData.fbp = cookiesAtuais.fbp
   if (cookiesAtuais.fbc) userData.fbc = cookiesAtuais.fbc
-
-  const fbclid = utms.fbclid || urlParams.get('fbclid') || ''
+  if (sessionId) userData.external_id = sessionId
   const utmSource = utms.utm_source || ''
   const utmMedium = utms.utm_medium || ''
   const utmCampaign = utms.utm_campaign || ''
@@ -306,7 +385,13 @@ export function enviarEventoSPRINT(
 
   if (typeof window.fbq === 'function') {
     try {
-      window.fbq('track', evento, extra || {}, { eventID: canonicalId })
+      // Assegura Advanced Matching registrado antes do disparo
+      configurarMetaAdvancedMatching(sessionId)
+      // Dispara evento com eventID e user_data no 4º parâmetro
+      window.fbq('track', evento, extra || {}, {
+        eventID: canonicalId,
+        user_data: { external_id: sessionId },
+      })
     } catch (errPixel) {
       console.warn('Erro ao disparar Meta Pixel:', errPixel)
     }
@@ -555,12 +640,6 @@ export function dispararPurchaseSPRINT(customValor?: number): void {
   if (window.SPRINT_PRODUCT_ID === undefined)
     window.SPRINT_PRODUCT_ID = 'cd86f860-ca5d-11f1-b7fe-c57a0f1a8146'
 
-  const cookies = lerCookies()
-  const urlParams = extrairUrlParams()
-  const userData: Record<string, string> = {}
-  if (cookies.fbp) userData.fbp = cookies.fbp
-  if (cookies.fbc) userData.fbc = cookies.fbc
-
   let utms: Record<string, string> = {}
   try {
     const salvos = localStorage.getItem('sprint_utms')
@@ -569,7 +648,18 @@ export function dispararPurchaseSPRINT(customValor?: number): void {
     /* ignore */
   }
 
+  const urlParams = extrairUrlParams()
   const fbclid = urlParams.get('fbclid') || utms.fbclid || ''
+
+  // Garante fallback de _fbc se ausente e fbclid existir
+  if (fbclid) {
+    sincronizarCookieFbc(fbclid)
+  }
+
+  const cookies = lerCookies()
+  const userData: Record<string, string> = {}
+  if (cookies.fbp) userData.fbp = cookies.fbp
+  if (cookies.fbc) userData.fbc = cookies.fbc
   const campaignParam = urlParams.get('utm_campaign') || utms.utm_campaign || ''
   const campaignIdParam =
     urlParams.get('campaign_id') ||
@@ -635,6 +725,14 @@ export function dispararPurchaseSPRINT(customValor?: number): void {
   // Sem session_id: NÃO dispara compra (evita duplicidade com webhook Kiwify)
   if (!sessionId) {
     return
+  }
+
+  // Inclui external_id = session_id no user_data do payload server-side
+  userData.external_id = sessionId
+
+  // Garante Advanced Matching no Pixel também na página de obrigado
+  if (typeof window.fbq === 'function') {
+    configurarMetaAdvancedMatching(sessionId)
   }
 
   const canonicalEventId = sessionId + '_purchase'
