@@ -44,8 +44,12 @@ const Footer = React.lazy(() =>
 export default function Index() {
   useEffect(() => {
     // Inicialização do Meta Pixel e captura de UTMs + session_id SPRINT (ref 59168)
-    const cleanup = inicializarRastreamentoLanding()
-    return cleanup
+    try {
+      const cleanup = inicializarRastreamentoLanding()
+      return cleanup
+    } catch (e) {
+      console.warn('Erro ao inicializar tracking:', e)
+    }
   }, [])
 
   return (

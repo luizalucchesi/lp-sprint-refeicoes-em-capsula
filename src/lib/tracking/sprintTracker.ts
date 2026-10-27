@@ -549,89 +549,115 @@ export function dispararInitiateCheckoutCanonico() {
 export function inicializarRastreamentoLanding(): () => void {
   if (typeof window === 'undefined') return () => {}
 
-  // 1. Inicializa pixel base se necessário
-  inicializarMetaPixel()
-
-  // 2. Captura UTMs e cria sessão
-  capturarEPersistirUtms()
-  const sessionId = obterOuCriarSessionId()
-
-  // 3. Garante window.CRM.enviar
-  window.CRM = window.CRM || {}
-  window.CRM.enviar = enviarEventoSPRINT
-
-  // 4. PageView canônico
-  dispararPageViewCanonico()
-
-  // 5. Configurar URLs da Kiwify
-  configurarCheckoutKiwify()
-
-  // 6. Listener delegado em fase de captura (true) para links de checkout
-  const handleClickCapture = function (ev: MouseEvent) {
+  try {
+    // 1. Inicializa pixel base se necessário
     try {
-      const target = ev.target as HTMLElement | null
-      const el =
-        target && target.closest
-          ? (target.closest(
-              'a[href*="kiwify"], a[href*="checkout"], button[data-checkout], a[data-checkout]',
-            ) as HTMLElement | null)
-          : null
-      if (!el) return
-
-      if (el.tagName === 'A' && (el as HTMLAnchorElement).href) {
-        ;(el as HTMLAnchorElement).href = enriquecerUrlCheckout((el as HTMLAnchorElement).href)
-      }
-
-      const icUrl = window.location.origin + window.location.pathname
-      if (deveDisparar('InitiateCheckout', icUrl, sessionId)) {
-        const checkoutEventId = 'InitiateCheckout_' + sessionId
-        if (window.CRM && typeof window.CRM.enviar === 'function') {
-          window.CRM.enviar('InitiateCheckout', checkoutEventId, { content_name: 'Checkout' }, true)
-        } else {
-          enviarEventoSPRINT(
-            'InitiateCheckout',
-            checkoutEventId,
-            { content_name: 'Checkout' },
-            true,
-          )
-        }
-      }
-    } catch {
-      /* ignore */
+      inicializarMetaPixel()
+    } catch (e) {
+      console.warn('Erro ao inicializarMetaPixel:', e)
     }
-  }
 
-  document.addEventListener('click', handleClickCapture, true)
-
-  // 7. Evento canônico ContentRead ao rolar até 85% do conteúdo
-  let contentReadSent = false
-  const handleScroll = function () {
-    if (contentReadSent) return
+    // 2. Captura UTMs e cria sessão
     try {
-      const scrollPercent =
-        (window.scrollY + window.innerHeight) / (document.documentElement.scrollHeight || 1)
-      if (scrollPercent >= 0.85) {
-        const crUrl = window.location.origin + window.location.pathname
-        if (deveDisparar('ContentRead', crUrl, sessionId)) {
-          contentReadSent = true
-          const readEventId = 'ContentRead_' + sessionId + '_' + hashCurto(crUrl)
+      capturarEPersistirUtms()
+    } catch (e) {
+      console.warn('Erro ao capturarEPersistirUtms:', e)
+    }
+    const sessionId = obterOuCriarSessionId()
+
+    // 3. Garante window.CRM.enviar
+    window.CRM = window.CRM || {}
+    window.CRM.enviar = enviarEventoSPRINT
+
+    // 4. PageView canônico
+    try {
+      dispararPageViewCanonico()
+    } catch (e) {
+      console.warn('Erro ao dispararPageViewCanonico:', e)
+    }
+
+    // 5. Configurar URLs da Kiwify
+    try {
+      configurarCheckoutKiwify()
+    } catch (e) {
+      console.warn('Erro ao configurarCheckoutKiwify:', e)
+    }
+
+    // 6. Listener delegado em fase de captura (true) para links de checkout
+    const handleClickCapture = function (ev: MouseEvent) {
+      try {
+        const target = ev.target as HTMLElement | null
+        const el =
+          target && target.closest
+            ? (target.closest(
+                'a[href*="kiwify"], a[href*="checkout"], button[data-checkout], a[data-checkout]',
+              ) as HTMLElement | null)
+            : null
+        if (!el) return
+
+        if (el.tagName === 'A' && (el as HTMLAnchorElement).href) {
+          ;(el as HTMLAnchorElement).href = enriquecerUrlCheckout((el as HTMLAnchorElement).href)
+        }
+
+        const icUrl = window.location.origin + window.location.pathname
+        if (deveDisparar('InitiateCheckout', icUrl, sessionId)) {
+          const checkoutEventId = 'InitiateCheckout_' + sessionId
           if (window.CRM && typeof window.CRM.enviar === 'function') {
-            window.CRM.enviar('ContentRead', readEventId, {})
+            window.CRM.enviar(
+              'InitiateCheckout',
+              checkoutEventId,
+              { content_name: 'Checkout' },
+              true,
+            )
           } else {
-            enviarEventoSPRINT('ContentRead', readEventId, {})
+            enviarEventoSPRINT(
+              'InitiateCheckout',
+              checkoutEventId,
+              { content_name: 'Checkout' },
+              true,
+            )
           }
         }
+      } catch {
+        /* ignore */
       }
-    } catch {
-      /* ignore */
     }
-  }
 
-  window.addEventListener('scroll', handleScroll, { passive: true })
+    document.addEventListener('click', handleClickCapture, true)
 
-  return () => {
-    document.removeEventListener('click', handleClickCapture, true)
-    window.removeEventListener('scroll', handleScroll)
+    // 7. Evento canônico ContentRead ao rolar até 85% do conteúdo
+    let contentReadSent = false
+    const handleScroll = function () {
+      if (contentReadSent) return
+      try {
+        const scrollPercent =
+          (window.scrollY + window.innerHeight) / (document.documentElement.scrollHeight || 1)
+        if (scrollPercent >= 0.85) {
+          const crUrl = window.location.origin + window.location.pathname
+          if (deveDisparar('ContentRead', crUrl, sessionId)) {
+            contentReadSent = true
+            const readEventId = 'ContentRead_' + sessionId + '_' + hashCurto(crUrl)
+            if (window.CRM && typeof window.CRM.enviar === 'function') {
+              window.CRM.enviar('ContentRead', readEventId, {})
+            } else {
+              enviarEventoSPRINT('ContentRead', readEventId, {})
+            }
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      document.removeEventListener('click', handleClickCapture, true)
+      window.removeEventListener('scroll', handleScroll)
+    }
+  } catch (err) {
+    console.warn('Erro global em inicializarRastreamentoLanding:', err)
+    return () => {}
   }
 }
 

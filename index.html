@@ -1,6 +1,6 @@
 <!-- HTML template for the frontend react app: https://developer.mozilla.org/en-US/docs/Web/HTML -->
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,33 +19,10 @@
     <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/fraunces/v38/6NUu8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7iQcIfJD58njU0oc7qv8.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" crossorigin />
 
-    <!-- Desvincula a folha de estilo compilada do CSS para não bloquear a renderização inicial (CSS crítico já inlined no build) -->
-    <script>
-      (function(){
-        try {
-          var observer = new MutationObserver(function(mutations) {
-            for (var i = 0; i < mutations.length; i++) {
-              var nodes = mutations[i].addedNodes;
-              for (var j = 0; j < nodes.length; j++) {
-                var n = nodes[j];
-                if (n.nodeName === 'LINK' && n.rel === 'stylesheet' && n.href && n.href.indexOf('/assets/index-') !== -1) {
-                  n.media = 'print';
-                  n.onload = function() { this.media = 'all'; };
-                }
-              }
-            }
-          });
-          observer.observe(document.documentElement, { childList: true, subtree: true });
-        } catch(e) {}
-      })();
-    </script>
+
 
     <!-- Google Fonts com pesos e famílias reais (Fraunces 700 + Inter 400..700 + IBM Plex Mono 500..700) -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    </noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>Refeições em Cápsula • Instituto do Sabor</title>
     <meta name="description" content="O método Refeições em Cápsula organiza seu freezer em 24 bases que se combinam em mais de 200 pratos. Jantar pronto em 5 a 15 minutos." />
     <meta name="author" content="Skip (https://goskip.dev)" />
