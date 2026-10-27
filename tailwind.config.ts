@@ -3,6 +3,10 @@ import type { Config } from 'tailwindcss'
 import animatePlugin from 'tailwindcss-animate'
 import typographyPlugin from '@tailwindcss/typography'
 import aspectRatioPlugin from '@tailwindcss/aspect-ratio'
+import { optimizeAssets } from './image-optimizer-postcss.mjs'
+
+// Dispara otimização de imagens quando Tailwind lê a configuração durante o vite build
+await optimizeAssets()
 
 export default {
   darkMode: ['class'],
