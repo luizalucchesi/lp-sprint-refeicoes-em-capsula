@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Plus, Minus, HelpCircle } from 'lucide-react'
+import { CtaButton } from './CtaButton'
 
 interface FaqItem {
   pergunta: string
@@ -118,6 +119,24 @@ export const SecaoFaq: React.FC = () => {
               </div>
             )
           })}
+        </div>
+
+        {/* CTA estratégico após FAQ para quem tirou todas as dúvidas */}
+        <div className="mt-14 flex flex-col items-center justify-center text-center p-8 bg-cream-100 rounded-3xl border border-caramel/25 shadow-sm">
+          <p className="font-serif text-2xl sm:text-3xl font-bold text-forest mb-2">
+            Ainda com alguma dúvida?
+          </p>
+          <p className="text-forest/80 text-sm sm:text-base font-sans max-w-lg mb-6">
+            Lembre-se: você tem 7 dias de garantia incondicional para experimentar o método sem
+            nenhum risco.
+          </p>
+          <CtaButton
+            text="Garantir meu acesso agora por R$47"
+            subtext="Acesso imediato • 4 bônus inclusos • Garantia de 7 dias"
+            variant="primary"
+            showBadge
+            badgeText="Sem Risco"
+          />
         </div>
       </div>
     </section>

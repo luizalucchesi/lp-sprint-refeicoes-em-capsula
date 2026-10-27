@@ -1,5 +1,6 @@
 import React from 'react'
 import { Clock, DollarSign, Compass, Repeat } from 'lucide-react'
+import { CtaButton } from './CtaButton'
 
 export const SecaoOQueMuda: React.FC = () => {
   const mudancas = [
@@ -68,6 +69,17 @@ export const SecaoOQueMuda: React.FC = () => {
               </div>
             )
           })}
+        </div>
+
+        {/* CTA estratégico após benefícios/mudanças de rotina */}
+        <div className="mt-12 flex justify-center">
+          <CtaButton
+            text="Quero economizar tempo e dinheiro na cozinha"
+            subtext="Mais de 200 pratos práticos • Apenas R$47 com garantia de 7 dias"
+            variant="primary"
+            showBadge
+            badgeText="Sem Monotonia"
+          />
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Snowflake, ChefHat, CheckSquare } from 'lucide-react'
 import { FreezerShelfIllustration } from './FreezerShelfIllustration'
+import { CtaButton } from './CtaButton'
 
 export const SecaoAVirada: React.FC = () => {
   return (
@@ -139,6 +140,17 @@ export const SecaoAVirada: React.FC = () => {
           <div className="lg:col-span-5 flex justify-center">
             <FreezerShelfIllustration />
           </div>
+        </div>
+
+        {/* CTA estratégico pós-etapas e freezer */}
+        <div className="mt-12 flex justify-center">
+          <CtaButton
+            text="Quero organizar meu freezer em 24 bases"
+            subtext="Acesso imediato ao método completo por apenas R$47"
+            variant="primary"
+            showBadge
+            badgeText="Método Passo a Passo"
+          />
         </div>
       </div>
     </section>

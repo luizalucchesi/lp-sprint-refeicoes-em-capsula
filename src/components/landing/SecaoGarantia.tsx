@@ -28,7 +28,9 @@ export const SecaoGarantia: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <CtaButton
               text="Quero testar por 7 dias sem risco"
-              variant="secondary"
+              variant="primary"
+              showBadge
+              badgeText="100% Seguro"
               subtext="Reembolso simplificado em 1 clique pela Kiwify"
             />
           </div>

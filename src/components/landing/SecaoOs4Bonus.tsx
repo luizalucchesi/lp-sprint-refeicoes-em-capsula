@@ -10,6 +10,7 @@ import {
   tabelaMacrosBonus3,
   freezerBonus1,
 } from '@/assets/mockupImages'
+import { CtaButton } from './CtaButton'
 
 export const SecaoOs4Bonus: React.FC = () => {
   const bonusList = [
@@ -210,6 +211,17 @@ export const SecaoOs4Bonus: React.FC = () => {
               </div>
             )
           })}
+        </div>
+
+        {/* CTA estratégico pós-bônus exclusivos */}
+        <div className="mt-14 flex flex-col items-center justify-center text-center">
+          <CtaButton
+            text="Garantir meu acesso com os 4 bônus grátis"
+            subtext="De R$157 por apenas R$47 • Oferta exclusiva desta página"
+            variant="primary"
+            showBadge
+            badgeText="Economia de R$110"
+          />
         </div>
       </div>
     </section>
