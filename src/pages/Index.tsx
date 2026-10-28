@@ -1,45 +1,19 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { StickyPurchaseBar } from '@/components/landing/StickyPurchaseBar'
 import { inicializarRastreamentoLanding } from '@/lib/tracking/sprintTracker'
 
-// Lazy loading das seções abaixo da dobra para otimizar o carregamento móvel
-const SecaoChegandoDoTrabalho = React.lazy(() =>
-  import('@/components/landing/SecaoChegandoDoTrabalho').then((m) => ({
-    default: m.SecaoChegandoDoTrabalho,
-  })),
-)
-const SecaoAVirada = React.lazy(() =>
-  import('@/components/landing/SecaoAVirada').then((m) => ({ default: m.SecaoAVirada })),
-)
-const SecaoOQueMuda = React.lazy(() =>
-  import('@/components/landing/SecaoOQueMuda').then((m) => ({ default: m.SecaoOQueMuda })),
-)
-const SecaoOQueVoceRecebe = React.lazy(() =>
-  import('@/components/landing/SecaoOQueVoceRecebe').then((m) => ({
-    default: m.SecaoOQueVoceRecebe,
-  })),
-)
-const SecaoQuemEstaPorTras = React.lazy(() =>
-  import('@/components/landing/SecaoQuemEstaPorTras').then((m) => ({
-    default: m.SecaoQuemEstaPorTras,
-  })),
-)
-const SecaoOs4Bonus = React.lazy(() =>
-  import('@/components/landing/SecaoOs4Bonus').then((m) => ({ default: m.SecaoOs4Bonus })),
-)
-const SecaoPreco = React.lazy(() =>
-  import('@/components/landing/SecaoPreco').then((m) => ({ default: m.SecaoPreco })),
-)
-const SecaoGarantia = React.lazy(() =>
-  import('@/components/landing/SecaoGarantia').then((m) => ({ default: m.SecaoGarantia })),
-)
-const SecaoFaq = React.lazy(() =>
-  import('@/components/landing/SecaoFaq').then((m) => ({ default: m.SecaoFaq })),
-)
-const Footer = React.lazy(() =>
-  import('@/components/landing/Footer').then((m) => ({ default: m.Footer })),
-)
+// Imports diretos das seções para robustez máxima (renderização garantida, sem falhas de chunk/lazy de assets)
+import { SecaoChegandoDoTrabalho } from '@/components/landing/SecaoChegandoDoTrabalho'
+import { SecaoAVirada } from '@/components/landing/SecaoAVirada'
+import { SecaoOQueMuda } from '@/components/landing/SecaoOQueMuda'
+import { SecaoOQueVoceRecebe } from '@/components/landing/SecaoOQueVoceRecebe'
+import { SecaoOs4Bonus } from '@/components/landing/SecaoOs4Bonus'
+import { SecaoQuemEstaPorTras } from '@/components/landing/SecaoQuemEstaPorTras'
+import { SecaoPreco } from '@/components/landing/SecaoPreco'
+import { SecaoGarantia } from '@/components/landing/SecaoGarantia'
+import { SecaoFaq } from '@/components/landing/SecaoFaq'
+import { Footer } from '@/components/landing/Footer'
 
 export default function Index() {
   useEffect(() => {
@@ -60,56 +34,36 @@ export default function Index() {
       {/* 1. Hero Section: Headline, promessa, CTA primário e cena núcleo (carregada imediatamente) */}
       <HeroSection />
 
-      {/* Seções abaixo da dobra: cada seção possui seu próprio Suspense com min-height neutro (sem layout shift - CLS 0) */}
+      {/* Seções da página renderizadas diretamente para garantir que imagens e conteúdo nunca falhem */}
       {/* 2. Dores: Chegando do trabalho, geladeira cheia, fadiga de decisão */}
-      <Suspense fallback={<div className="min-h-[480px] bg-cream-50/70" aria-hidden="true" />}>
-        <SecaoChegandoDoTrabalho />
-      </Suspense>
+      <SecaoChegandoDoTrabalho />
 
       {/* 3. A Virada de Chave: Os 3 Passos + Frango & Feijão + Ilustração Freezer */}
-      <Suspense fallback={<div className="min-h-[680px] bg-forest" aria-hidden="true" />}>
-        <SecaoAVirada />
-      </Suspense>
+      <SecaoAVirada />
 
       {/* 4. O que muda na sua semana: Tempo, Dinheiro, Repertório, Sem monotonia */}
-      <Suspense fallback={<div className="min-h-[460px] bg-cream-50/60" aria-hidden="true" />}>
-        <SecaoOQueMuda />
-      </Suspense>
+      <SecaoOQueMuda />
 
       {/* 5. O que você recebe: 24 bases, 229 fichas, 5 grupos de sustento */}
-      <Suspense fallback={<div className="min-h-[780px] bg-cream" aria-hidden="true" />}>
-        <SecaoOQueVoceRecebe />
-      </Suspense>
+      <SecaoOQueVoceRecebe />
 
       {/* 6. Os 4 Bônus exclusivos da página com valores riscados */}
-      <Suspense fallback={<div className="min-h-[640px] bg-cream" aria-hidden="true" />}>
-        <SecaoOs4Bonus />
-      </Suspense>
+      <SecaoOs4Bonus />
 
       {/* 7. Quem está por trás do método: Chef Luiza */}
-      <Suspense fallback={<div className="min-h-[620px] bg-[#FBF7F0]" aria-hidden="true" />}>
-        <SecaoQuemEstaPorTras />
-      </Suspense>
+      <SecaoQuemEstaPorTras />
 
       {/* 8. Tabela de Preço completa: De R$157 por R$47 */}
-      <Suspense fallback={<div className="min-h-[600px] bg-cream-50/70" aria-hidden="true" />}>
-        <SecaoPreco />
-      </Suspense>
+      <SecaoPreco />
 
       {/* 9. Garantia incondicional de 7 dias com risco zero */}
-      <Suspense fallback={<div className="min-h-[380px] bg-cream" aria-hidden="true" />}>
-        <SecaoGarantia />
-      </Suspense>
+      <SecaoGarantia />
 
       {/* 10. FAQ com respostas do documento */}
-      <Suspense fallback={<div className="min-h-[640px] bg-cream" aria-hidden="true" />}>
-        <SecaoFaq />
-      </Suspense>
+      <SecaoFaq />
 
       {/* 11. Rodapé institucional com avisos e links */}
-      <Suspense fallback={<div className="min-h-[220px] bg-forest-dark" aria-hidden="true" />}>
-        <Footer />
-      </Suspense>
+      <Footer />
     </div>
   )
 }
